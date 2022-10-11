@@ -21,7 +21,7 @@
 GPIO_PortPinSettingMacro GPIO_LED				= {GPIOA, Pin_5};//
 GPIO_PortPinSettingMacro GPIO_LED_EXT			= {GPIOB, Pin_0};//
 GPIO_PortPinSettingMacro GPIO_STST_CURRENT		= {GPIOA, Pin_4};//
-GPIO_PortPinSettingMacro GPIO_STST_MUX			= {GPIOA, Pin_8};//
+GPIO_PortPinSettingMacro GPIO_STST_IGTU_CH		= {GPIOA, Pin_8};//
 GPIO_PortPinSettingMacro GPIO_IGTU_SEL			= {GPIOB, Pin_6};//
 GPIO_PortPinSettingMacro GPIO_IGTU_SI			= {GPIOB, Pin_4};//
 GPIO_PortPinSettingMacro GPIO_IGTU_MUX			= {GPIOC, Pin_13};//

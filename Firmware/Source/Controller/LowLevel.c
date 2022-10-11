@@ -26,9 +26,9 @@ void LL_SetStateSelfTestCurrent(bool State)
 }
 //-----------------------------
 
-void LL_SetStateSelfTestMux(bool State)
+void LL_SelfTestChannel_IGTU(bool State)
 {
-	GPIO_SetState(GPIO_STST_MUX, State);
+	GPIO_SetState(GPIO_STST_IGTU_CH, State);
 }
 //-----------------------------
 

@@ -11,7 +11,7 @@
 void LL_ToggleBoardLED();
 void LL_SetStateExtLED(bool State);
 void LL_SetStateSelfTestCurrent(bool State);
-void LL_SetStateSelfTestMux(bool State);
+void LL_SelfTestChannel_IGTU(bool State);
 void LL_SwitchMuxToIGTU();
 void LL_SwitchMuxToLCTU();
 void LL_SwitchMuxToDefault();

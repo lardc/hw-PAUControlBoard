@@ -22,7 +22,7 @@ void INITCFG_ConfigIO()
 	GPIO_InitPushPullOutput(GPIO_LED);
 	GPIO_InitPushPullOutput(GPIO_LED_EXT);
 	GPIO_InitPushPullOutput(GPIO_STST_CURRENT);
-	GPIO_InitPushPullOutput(GPIO_STST_MUX);
+	GPIO_InitPushPullOutput(GPIO_STST_IGTU_CH);
 	GPIO_InitPushPullOutput(GPIO_IGTU_MUX);
 	GPIO_InitPushPullOutput(GPIO_LCTU_MUX);
 	GPIO_InitPushPullOutput(GPIO_IDIV2);
@@ -37,7 +37,7 @@ void INITCFG_ConfigIO()
 	GPIO_SetState(GPIO_LED, false);
 	GPIO_SetState(GPIO_LED_EXT, false);
 	GPIO_SetState(GPIO_STST_CURRENT, false);
-	GPIO_SetState(GPIO_STST_MUX, false);
+	GPIO_SetState(GPIO_STST_IGTU_CH, false);
 	GPIO_SetState(GPIO_IGTU_SEL, false);
 	GPIO_SetState(GPIO_IGTU_MUX, false);
 	GPIO_SetState(GPIO_IGTU_SI, false);
