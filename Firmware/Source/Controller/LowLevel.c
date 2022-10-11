@@ -74,6 +74,16 @@ void LL_SwitchSyncOff()
 }
 //-----------------------------
 
+void LL_GenerateSyncToKeithley()
+{
+	GPIO_SetState(GPIO_LCTU_SI, false);
+	GPIO_SetState(GPIO_IGTU_SI, false);
+	DELAY_US(5);
+	GPIO_SetState(GPIO_LCTU_SI, true);
+	GPIO_SetState(GPIO_IGTU_SI, true);
+}
+//-----------------------------
+
 void LL_SetStateCurrentDivider(bool State)
 {
 	GPIO_SetState(GPIO_IDIV2, State);

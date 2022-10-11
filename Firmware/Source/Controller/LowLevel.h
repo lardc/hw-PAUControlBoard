@@ -19,5 +19,6 @@ void LL_SwitchSyncToIGTU();
 void LL_SwitchSyncToLCTU();
 void LL_SwitchSyncOff();
 void LL_SetStateCurrentDivider(bool State);
+void LL_GenerateSyncToKeithley();
 
 #endif //__LOWLEVEL_H
