@@ -89,3 +89,9 @@ void LL_SetStateCurrentDivider(bool State)
 	GPIO_SetState(GPIO_IDIV2, State);
 }
 //-----------------------------
+
+void LL_SendByteToKeithley(uint8_t Byte)
+{
+	ZwSCI_xSendChar(USART2, Byte);
+}
+//-----------------------------

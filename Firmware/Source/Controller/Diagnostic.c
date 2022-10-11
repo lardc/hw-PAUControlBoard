@@ -48,6 +48,10 @@ bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
 		DBACT_GenerateSyncToKeithley();
 		break;
 
+	case ACT_DBG_SEND_DATA_TO_KEI:
+		DBACT_SendDataToKeithley();
+		break;
+
 		default:
 			return false;
 	}

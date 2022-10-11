@@ -20,5 +20,6 @@ void LL_SwitchSyncToLCTU();
 void LL_SwitchSyncOff();
 void LL_SetStateCurrentDivider(bool State);
 void LL_GenerateSyncToKeithley();
+void LL_SendByteToKeithley(uint8_t Byte);
 
 #endif //__LOWLEVEL_H

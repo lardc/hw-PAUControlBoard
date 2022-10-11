@@ -67,4 +67,13 @@ void DBACT_GenerateSyncToKeithley()
 }
 //-----------------------
 
+void DBACT_SendDataToKeithley()
+{
+	for(int i = 0; i < MEMBUF_ValuesWrite_Counter; i++)
+		LL_SendByteToKeithley(MEMBUF_Values_Write[i]);
+
+	MEMBUF_ValuesWrite_Counter = 0;
+}
+//-----------------------
+
 

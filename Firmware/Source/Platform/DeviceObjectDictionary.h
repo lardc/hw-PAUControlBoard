@@ -16,6 +16,7 @@
 #define ACT_DBG_SWITCH_SMUX_LCTU		16	// Переключить мультиплексор синхронизации в положение LCTU
 #define ACT_DBG_CURRENT_DIVIDER			17	// 1 - включить делитель тока, 0 - выключить делитель тока
 #define ACT_DBG_GENERATE_SYNC_KEI		18	// Формирование импульса синхронизации для Keithley 6485
+#define ACT_DBG_SEND_DATA_TO_KEI		19	// Отправить данные в Keithley 6485
 
 #define ACT_SAVE_TO_ROM					200	// Сохранение пользовательских данных во FLASH процессора
 #define ACT_RESTORE_FROM_ROM			201	// Восстановление данных из FLASH
@@ -71,5 +72,6 @@
 #define ERR_WRONG_PWD					4	//  Неправильный ключ
 
 // Endpoints
+#define EP16_WR							1	// Ендпоинт для отладки взаимодействия с Keithley 6485
 
 #endif //  __DEV_OBJ_DIC_H

@@ -27,6 +27,8 @@ typedef void (*FUNC_AsyncDelegate)();
 volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = SS_None;
 static Boolean CycleActive = false;
+Int16U MEMBUF_Values_Write[VALUES_x_SIZE];
+Int16U MEMBUF_ValuesWrite_Counter = 0;
 //
 volatile Int64U CONTROL_TimeCounter = 0;
 //
@@ -43,6 +45,11 @@ void CONTROL_SaveTestResult();
 //
 void CONTROL_Init()
 {
+	Int16U EPWriteIndexes[EP_WRITE_COUNT] = { EP16_WR };
+	Int16U EPWriteSized[EP_WRITE_COUNT] = { VALUES_x_SIZE };
+	pInt16U EPWriteCounters[EP_WRITE_COUNT] = { (pInt16U)&MEMBUF_ValuesWrite_Counter };
+	pInt16U EPWriteDatas[EP_WRITE_COUNT] = { MEMBUF_Values_Write };
+
 	// Конфигурация сервиса работы Data-table и EPROM
 	EPROMServiceConfig EPROMService = {(FUNC_EPROM_WriteValues)&NFLASH_WriteDT, (FUNC_EPROM_ReadValues)&NFLASH_ReadDT};
 	// Инициализация data table
@@ -50,6 +57,7 @@ void CONTROL_Init()
 	DT_SaveFirmwareInfo(CAN_SLAVE_NID, 0);
 	// Инициализация device profile
 	DEVPROFILE_Init(&CONTROL_DispatchAction, &CycleActive);
+	DEVPROFILE_InitEPWriteService(EPWriteIndexes, EPWriteSized, EPWriteCounters, EPWriteDatas);
 
 	// Сброс значений
 	DEVPROFILE_ResetControlSection();
