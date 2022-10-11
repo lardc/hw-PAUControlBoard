@@ -7,5 +7,14 @@
 
 // Functions
 //
+void DBGACT_ToggleExtLED();
+void DBACT_SelfTestCurrent();
+void DBACT_SelfTestChannel_IGTU();
+void DBACT_SwitchMuxToIGTU();
+void DBACT_SwitchMuxToLCTU();
+void DBACT_SwitchSyncToIGTU();
+void DBACT_SwitchSyncToLCTU();
+void DBACT_SetStateCurrentDivider();
+void DBACT_GenerateSyncToKeithley();
 
 #endif //__DEBUGACTIONS_H

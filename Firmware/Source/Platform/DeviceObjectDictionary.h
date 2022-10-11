@@ -6,6 +6,16 @@
 #define ACT_DISABLE_POWER				2	// Выключение блока
 #define ACT_CLR_FAULT					3	// Очистка всех fault
 #define ACT_CLR_WARNING					4	// Очистка всех warning
+//
+#define ACT_DBG_EXTERNAL_LED			10	// Проверка работы внешнего индикатора
+#define ACT_DBG_ST_CURRENT				11	// Запус тестового тока
+#define ACT_DBG_ST_CH_IGTU				12	// Проверка канала мультиплексора IGTU
+#define ACT_DBG_SWITCH_AMUX_IGTU		13	// Переключить аналоговый мультиплексор в положение IGTU
+#define ACT_DBG_SWITCH_AMUX_LCTU		14	// Переключить аналоговый мультиплексор в положение LCTU
+#define ACT_DBG_SWITCH_SMUX_IGTU		15	// Переключить мультиплексор синхронизации в положение IGTU
+#define ACT_DBG_SWITCH_SMUX_LCTU		16	// Переключить мультиплексор синхронизации в положение LCTU
+#define ACT_DBG_CURRENT_DIVIDER			17	// 1 - включить делитель тока, 0 - выключить делитель тока
+#define ACT_DBG_GENERATE_SYNC_KEI		18	// Формирование импульса синхронизации для Keithley 6485
 
 #define ACT_SAVE_TO_ROM					200	// Сохранение пользовательских данных во FLASH процессора
 #define ACT_RESTORE_FROM_ROM			201	// Восстановление данных из FLASH
@@ -19,6 +29,7 @@
 
 
 // Несохраняемы регистры чтения-записи
+#define REG_DBG							150	// Отладочный регистр
 
 
 // Регистры только чтение
