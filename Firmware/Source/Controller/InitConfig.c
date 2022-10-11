@@ -72,6 +72,9 @@ void INITCFG_ConfigUART()
 {
 	USART_Init(USART1, SYSCLK, USART_BAUDRATE);
 	USART_Recieve_Interupt(USART1, 0, true);
+
+	USART_Init(USART2, SYSCLK, KEITHLEY_RS232_BAUDRATE);
+	USART_Recieve_Interupt(USART2, 0, true);
 }
 //------------------------------------------------
 

@@ -22,6 +22,15 @@ void USART1_IRQHandler()
 }
 //-----------------------------------------
 
+void USART2_IRQHandler()
+{
+	if(ZwSCI_RecieveCheck(USART2))
+	{
+		ZwSCI_RecieveFlagClear(USART2);
+	}
+}
+//-----------------------------------------
+
 void USB_LP_CAN_RX0_IRQHandler()
 {
 	if(NCAN_RecieveCheck())
