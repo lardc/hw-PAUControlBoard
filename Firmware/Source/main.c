@@ -17,6 +17,9 @@ int main()
 	// Настройка внешних прерываний
 	//INITCFG_ConfigExtInterrupt();
 
+	// Настройка CAN
+	INITCFG_ConfigCAN();
+
 	// Настройка UART
 	INITCFG_ConfigUART();
 	
