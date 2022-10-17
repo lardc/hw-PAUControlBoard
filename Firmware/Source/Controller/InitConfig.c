@@ -38,12 +38,12 @@ void INITCFG_ConfigIO()
 	GPIO_SetState(GPIO_LED_EXT, false);
 	GPIO_SetState(GPIO_STST_CURRENT, false);
 	GPIO_SetState(GPIO_STST_IGTU_CH, false);
-	GPIO_SetState(GPIO_IGTU_SEL, false);
+	GPIO_SetState(GPIO_IGTU_SEL, true);
 	GPIO_SetState(GPIO_IGTU_MUX, false);
-	GPIO_SetState(GPIO_IGTU_SI, false);
-	GPIO_SetState(GPIO_LCTU_SEL, false);
+	GPIO_SetState(GPIO_IGTU_SI, true);
+	GPIO_SetState(GPIO_LCTU_SEL, true);
 	GPIO_SetState(GPIO_LCTU_MUX, false);
-	GPIO_SetState(GPIO_LCTU_SI, false);
+	GPIO_SetState(GPIO_LCTU_SI, true);
 	GPIO_SetState(GPIO_IDIV2, false);
 
 	// Альтернативные функции
@@ -51,8 +51,6 @@ void INITCFG_ConfigIO()
 	GPIO_InitAltFunction(GPIO_ALT_UART1_TX, AltFn_7);
 	GPIO_InitAltFunction(GPIO_ALT_CAN1_RX, AltFn_9);
 	GPIO_InitAltFunction(GPIO_ALT_CAN1_TX, AltFn_9);
-	GPIO_InitAltFunction(GPIO_ALT_SPI1_CLK, AltFn_5);
-	GPIO_InitAltFunction(GPIO_ALT_SPI1_DAT, AltFn_5);
 	GPIO_InitAltFunction(GPIO_ALT_UART2_TX, AltFn_7);
 	GPIO_InitAltFunction(GPIO_ALT_UART2_RX, AltFn_7);
 }
