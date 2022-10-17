@@ -16,7 +16,7 @@ void LL_ToggleBoardLED()
 
 void LL_SetStateExtLED(bool State)
 {
-	GPIO_SetState(GPIO_LED, State);
+	GPIO_SetState(GPIO_LED_EXT, State);
 }
 //-----------------------------
 
