@@ -94,6 +94,17 @@ void INITCFG_ConfigTimer7()
 }
 //------------------------------------------------
 
+void INITCFG_ConfigADC()
+{
+	RCC_ADC_Clk_EN(ADC_12_ClkEN);
+
+	// ADC1
+	ADC_Calibration(ADC1);
+	ADC_SoftTrigConfig(ADC1);
+	ADC_Enable(ADC1);
+}
+//------------------------------------------------
+
 void INITCFG_ConfigWatchDog()
 {
 	IWDG_Config();
