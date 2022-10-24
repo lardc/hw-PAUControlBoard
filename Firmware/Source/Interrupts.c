@@ -9,6 +9,7 @@
 #include "DataTable.h"
 #include "DeviceObjectDictionary.h"
 #include "Logic.h"
+#include "Keithley6485.h"
 
 // Functions
 //
@@ -26,6 +27,7 @@ void USART2_IRQHandler()
 {
 	if(ZwSCI_RecieveCheck(USART2))
 	{
+		KEI_ReceiveData(USART2);
 		ZwSCI_RecieveFlagClear(USART2);
 	}
 }
