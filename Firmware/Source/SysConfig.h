@@ -14,7 +14,7 @@
 // ----------------------------------------------
 
 // USART
-#define KEITHLEY_RS232_BAUDRATE			9600		// Скорость RS232 у Keithley 6485
+#define KEITHLEY_RS232_BAUDRATE			57600		// Скорость RS232 у Keithley 6485
 #define USART_BAUDRATE					115200		// Скорость USART
 #define USART_FIFOlen					32			// Длина FIFO USART
 // ----------------------------------------------
