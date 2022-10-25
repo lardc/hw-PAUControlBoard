@@ -8,6 +8,18 @@
 
 //Definitions
 //
+#define SFTST_R_SHUNT_MIN			47
+#define SFTST_R_SHUNT_MAX			1000
+#define SFTST_R_SHUNT_DEF			82
+//
+#define SFTST_I_ALOWED_ERR_MIN		0
+#define SFTST_I_ALOWED_ERR_MAX		20
+#define SFTST_I_ALOWED_ERR_DEF		10
+//
+#define SFTST_I_MIN					0
+#define SFTST_I_MAX					30
+#define SFTST_I_DEF					0
+//
 #define COEF_K_MIN					-INT16S_MAX
 #define COEF_K_MAX					INT16S_MAX
 #define COEF_K_DEF					1

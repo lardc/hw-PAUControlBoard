@@ -27,6 +27,12 @@
 
 // Регистры
 // Сохраняемые регистры
+#define REG_SFTST_R_SHUNT				0	// Сопротивление шунта системы самодиагностики (Ом)
+#define REG_SFTST_I_ALOWED_ERR			1	// Допустимая ошибка измеренного значения тока (%)
+#define REG_SFTST_KEI_I_MUX_OFF			2	// Эталонное значение тока с отключенным MUX (мА)
+#define REG_SFTST_KEI_I_MUX_IGTU		3	// Эталонное значение тока при MUX в положении IGTU (мА)
+#define REG_SFTST_KEI_I_MUX_LCTU		4	// Эталонное значение тока при MUX в положении LCTU без делителя (мА)
+#define REG_SFTST_KEI_I_MUX_LCTU_DIV	5	// Эталонное значение тока при MUX в положении LCTU с делителем (мА)
 
 
 // Несохраняемы регистры чтения-записи
@@ -57,6 +63,8 @@
 
 //  Fault and disable codes
 #define DF_NONE							0
+#define DF_TEST_I_SET					1
+#define DF_TEST_I_MEASURE				2
 
 // Problem
 #define PROBLEM_NONE					0
