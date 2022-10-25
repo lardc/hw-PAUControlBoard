@@ -13,6 +13,7 @@
 //
 Int16U KEI_RXcount = 0;
 Int8U KEI_Fifo[KEI_FIFO_LENGTH];
+Int16U NPLC_Time = 0;
 
 // Functions prototypes
 //
@@ -32,8 +33,8 @@ void KEI_Config()
 	KEI_Reset();
 	KEI_ZeroCorrect();
 	KEI_SetRange(RANGE_20mA);
-	KEI_TriggerLinkConfig();
 	KEI_SetADCRate(NPLC_DEF);
+	KEI_TriggerLinkConfig();
 }
 //----------------------------------
 
@@ -95,6 +96,8 @@ void KEI_SetADCRate(float Rate)
 		Temp[10 + i] = RateStr[i];
 
 	KEI_SendData(&Temp[0], 13);
+
+	NPLC_Time = RoundedRate * PLC_TIME;
 }
 //----------------------------------
 
@@ -124,6 +127,16 @@ float KEI_ReadData()
 	DELAY_MS(KEI_RECEIVE_TIME);
 
 	return KEI_ExtractData();
+}
+//----------------------------------
+
+float KEI_Measure()
+{
+	KEI_SwitchToSyncWaiting();
+	LL_GenerateSyncToKeithley();
+	DELAY_MS(NPLC_Time);
+
+	return KEI_ReadData();
 }
 //----------------------------------
 

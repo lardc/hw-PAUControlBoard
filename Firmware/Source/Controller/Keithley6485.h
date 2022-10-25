@@ -21,6 +21,7 @@
 #define NPLC_MIN						0.01
 #define NPLC_MAX						5
 #define NPLC_DEF						1
+#define PLC_TIME						20000	// in us
 
 //
 #define KEI_FIFO_LENGTH					20
@@ -33,4 +34,6 @@ void KEI_SetRange(float Current);
 float KEI_ReadData();
 void KEI_ReceiveData(USART_TypeDef* USARTx);
 void KEI_SwitchToSyncWaiting();
+float KEI_Measure();
+
 #endif /* CONTROLLER_KEITHLEY6485_H_ */
