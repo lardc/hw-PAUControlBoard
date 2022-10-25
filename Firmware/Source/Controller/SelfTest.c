@@ -36,8 +36,9 @@ void SELFTEST_Process()
 	case SS_Prepare:
 		KEI_Config();
 		LL_SwitchSyncOff();
+		LL_SwitchMuxToDefault();
 		LL_SetStateSelfTestCurrent(true);
-		LL_SetStateCurrentDivider(false);
+
 		RequiredTestCurrent = DataTable[REG_SFTST_KEI_I_MUX_OFF];
 		DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
 		CommutationDelayCounter = CONTROL_TimeCounter + COMMUTATION_DELAY_MS;
@@ -64,6 +65,7 @@ void SELFTEST_Process()
 						break;
 
 					case 1:
+						LL_SelfTestChannel_IGTU(false);
 						CONTROL_SetDeviceSubState(SS_LCTU_ChannelCheck);
 						break;
 
@@ -100,6 +102,7 @@ void SELFTEST_Process()
 	case SS_IGTU_ChannelCheck:
 		LL_SwitchSyncToIGTU();
 		LL_SwitchMuxToIGTU();
+		LL_SelfTestChannel_IGTU(true);
 		RequiredTestCurrent = DataTable[REG_SFTST_KEI_I_MUX_IGTU];
 		CommutationDelayCounter = CONTROL_TimeCounter + COMMUTATION_DELAY_MS;
 		CONTROL_SetDeviceSubState(SS_Measure);

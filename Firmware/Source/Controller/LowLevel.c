@@ -46,6 +46,9 @@ void LL_SwitchMuxToLCTU()
 
 void LL_SwitchMuxToDefault()
 {
+	LL_SelfTestChannel_IGTU(false);
+	LL_SetStateCurrentDivider(false);
+
 	GPIO_SetState(GPIO_IGTU_MUX, false);
 	GPIO_SetState(GPIO_LCTU_MUX, false);
 }
