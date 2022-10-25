@@ -41,6 +41,7 @@
 // Несохраняемы регистры чтения-записи
 #define REG_CHANNEL						128	// 0 - канал не выбран, 1 - LCTU, 2 - IGTU
 #define REG_RANGE						129	// Выбор дипазона измерения тока (mA)
+#define REG_MEASUREMENT_TIME			130	// Время преобразования (мс)
 //
 #define REG_DBG							150	// Отладочный регистр
 

@@ -19,4 +19,7 @@
 #define ADC_RESOLUTION							4095	// Разрешение АЦП
 #define ADC_I_CHANNEL							1		// Номер аналогового канала оцифровки тока
 
+//
+#define COMMUTATION_DELAY_MS					10		// Время коммутации
+
 #endif //  __GLOBAL_H

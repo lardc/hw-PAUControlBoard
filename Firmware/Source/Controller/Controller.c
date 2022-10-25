@@ -12,10 +12,14 @@
 #include "Diagnostic.h"
 #include "BCCIxParams.h"
 #include "SelfTest.h"
+#include "Keithley6485.h"
 
 // Definitions
 //
-
+#define CHANNEL_OFF			0
+#define CHANNEL_LCTU		1
+#define CHANNEL_IGTU		2
+//
 
 // Types
 //
@@ -30,6 +34,7 @@ Int16U MEMBUF_Values_Write[VALUES_x_SIZE];
 Int16U MEMBUF_ValuesWrite_Counter = 0;
 //
 volatile Int64U CONTROL_TimeCounter = 0;
+Int64U CONTROL_CommutationDelayCounter = 0;
 //
 
 // Forward functions
@@ -41,6 +46,7 @@ void CONTROL_LogicProcess();
 void CONTROL_SaveTestResult();
 void CONTROL_ResetOutputRegisters();
 void CONTROL_HardwareDefaultState();
+void CONTROL_Prepare();
 
 // Functions
 //
@@ -94,7 +100,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			{
 				CONTROL_ResetOutputRegisters();
 				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
-				CONTROL_SetDeviceState(DS_SelfTest, SS_Prepare);
+				CONTROL_SetDeviceState(DS_InProcess, ST_Prepare);
 			}
 			else if(CONTROL_State != DS_Ready)
 				*pUserError = ERR_OPERATION_BLOCKED;
@@ -102,9 +108,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 
 		case ACT_DISABLE_POWER:
 			if(CONTROL_State == DS_Ready)
-			{
-				CONTROL_SetDeviceState(DS_None, SS_None);
-			}
+				CONTROL_ResetToDefaultState();
 			else if(CONTROL_State != DS_None)
 					*pUserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -126,10 +130,23 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			{
 				CONTROL_ResetOutputRegisters();
 				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
-				CONTROL_SetDeviceState(DS_SelfTest, SS_Prepare);
+				CONTROL_SetDeviceState(DS_InProcess, ST_Prepare);
 			}
 			else
 				*pUserError = ERR_OPERATION_BLOCKED;
+			break;
+
+		case ACT_CONFIG:
+			if(CONTROL_State == DS_Ready || CONTROL_State == DS_ConfigReady)
+			{
+				CONTROL_ResetOutputRegisters();
+				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigMUX);
+			}
+			else
+				if (CONTROL_State == DS_InProcess)
+					*pUserError = ERR_OPERATION_BLOCKED;
+				else
+					*pUserError = ERR_DEVICE_NOT_READY;
 			break;
 
 		default:
@@ -146,13 +163,56 @@ void CONTROL_LogicProcess()
 	{
 		switch(CONTROL_SubState)
 		{
-			default:
-				break;
+		case SS_ConfigMUX:
+			(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchMuxToLCTU() : LL_SwitchMuxToIGTU();
+			CONTROL_SetDeviceState(DS_InProcess, SS_ConfigKeithley);
+			break;
+
+		case SS_ConfigKeithley:
+			KEI_SetRange(DataTable[REG_RANGE]);
+			KEI_SetADCRate(DataTable[REG_MEASUREMENT_TIME] / PLC_TIME);
+			CONTROL_CommutationDelayCounter = CONTROL_TimeCounter + COMMUTATION_DELAY_MS;
+			CONTROL_SetDeviceState(DS_InProcess, SS_WaitCommutation);
+			break;
+
+		case SS_WaitCommutation:
+			if(CONTROL_TimeCounter >= CONTROL_CommutationDelayCounter)
+				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigSync);
+			break;
+
+		case SS_ConfigSync:
+			KEI_SwitchToSyncWaiting();
+			(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchSyncToLCTU() : LL_SwitchSyncToIGTU();
+			CONTROL_SetDeviceState(DS_ConfigReady, SS_None);
+			break;
+
+		default:
+			SELFTEST_Process();
+			break;
 		}
 	}
+}
+//-----------------------------------------------
 
-	if(CONTROL_State == DS_SelfTest)
-		SELFTEST_Process();
+void CONTROL_Prepare()
+{
+	// Config MUX
+	//
+
+
+	// Config current devider
+	//
+	if(DataTable[REG_RANGE] > KEI_CURRENT_MAX)
+		LL_SetStateCurrentDivider(true);
+	else
+		LL_SetStateCurrentDivider(false);
+
+	// Config Keithley 6485
+	//
+
+
+	LL_SwitchSyncToLCTU();
+	LL_SwitchSyncToIGTU();
 }
 //-----------------------------------------------
 

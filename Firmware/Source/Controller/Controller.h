@@ -15,19 +15,22 @@ typedef enum __DeviceState
 	DS_Disabled = 2,
 	DS_Ready = 3,
 	DS_InProcess = 4,
-	DS_SelfTest = 5,
-	DS_ConfigReady = 6
+	DS_ConfigReady = 5
 } DeviceState;
 
 typedef enum __DeviceSubState
 {
 	SS_None = 0,
+	SS_ConfigMUX,
+	SS_ConfigKeithley,
+	SS_WaitCommutation,
+	SS_ConfigSync,
 	//
-	SS_Prepare = 10,
-	SS_Measure,
-	SS_IGTU_ChannelCheck,
-	SS_LCTU_ChannelCheck,
-	SS_CurrentDeviderCheck
+	ST_Prepare = 10,
+	ST_Measure,
+	ST_IGTU_ChannelCheck,
+	ST_LCTU_ChannelCheck,
+	ST_CurrentDeviderCheck
 } DeviceSubState;
 
 // Variables
