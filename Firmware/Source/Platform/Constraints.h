@@ -20,6 +20,21 @@
 #define SFTST_I_MAX					30
 #define SFTST_I_DEF					0
 //
+#define I_DIV_FACTOR_MIN			1
+#define I_DIV_FACTOR_MAX			3
+#define I_DIV_FACTOR_DEF			2
+//
+#define CHANNEL_LCTU				1
+#define CHANNEL_IGTU				2
+//
+#define RANGE_MIN					2e-6
+#define RANGE_MAX					30
+#define RANGE_DEF					30
+//
+#define MEASUREMENT_TIME_MIN		10
+#define MEASUREMENT_TIME_MAX		100
+#define MEASUREMENT_TIME_DEF		20
+//
 #define COEF_K_MIN					-INT16S_MAX
 #define COEF_K_MAX					INT16S_MAX
 #define COEF_K_DEF					1

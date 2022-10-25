@@ -13,12 +13,9 @@
 #include "BCCIxParams.h"
 #include "SelfTest.h"
 #include "Keithley6485.h"
+#include "Constraints.h"
 
 // Definitions
-//
-#define CHANNEL_OFF			0
-#define CHANNEL_LCTU		1
-#define CHANNEL_IGTU		2
 //
 
 // Types
@@ -35,6 +32,7 @@ Int16U MEMBUF_ValuesWrite_Counter = 0;
 //
 volatile Int64U CONTROL_TimeCounter = 0;
 Int64U CONTROL_CommutationDelayCounter = 0;
+float CurrentDivisionFactor = 1;
 //
 
 // Forward functions
@@ -46,7 +44,6 @@ void CONTROL_LogicProcess();
 void CONTROL_SaveTestResult();
 void CONTROL_ResetOutputRegisters();
 void CONTROL_HardwareDefaultState();
-void CONTROL_Prepare();
 
 // Functions
 //
@@ -172,6 +169,16 @@ void CONTROL_LogicProcess()
 			KEI_SetRange(DataTable[REG_RANGE]);
 			KEI_SetADCRate(DataTable[REG_MEASUREMENT_TIME] / PLC_TIME);
 			CONTROL_CommutationDelayCounter = CONTROL_TimeCounter + COMMUTATION_DELAY_MS;
+			CONTROL_SetDeviceState(DS_InProcess, SS_ConfigDevider);
+			break;
+
+		case SS_ConfigDevider:
+			if(DataTable[REG_CHANNEL] == CHANNEL_LCTU && DataTable[REG_RANGE] > KEI_CURRENT_MAX)
+			{
+				CurrentDivisionFactor = DataTable[REG_I_DIV_FACTOR];
+				LL_SetStateCurrentDivider(true);
+			}
+
 			CONTROL_SetDeviceState(DS_InProcess, SS_WaitCommutation);
 			break;
 
@@ -191,28 +198,6 @@ void CONTROL_LogicProcess()
 			break;
 		}
 	}
-}
-//-----------------------------------------------
-
-void CONTROL_Prepare()
-{
-	// Config MUX
-	//
-
-
-	// Config current devider
-	//
-	if(DataTable[REG_RANGE] > KEI_CURRENT_MAX)
-		LL_SetStateCurrentDivider(true);
-	else
-		LL_SetStateCurrentDivider(false);
-
-	// Config Keithley 6485
-	//
-
-
-	LL_SwitchSyncToLCTU();
-	LL_SwitchSyncToIGTU();
 }
 //-----------------------------------------------
 

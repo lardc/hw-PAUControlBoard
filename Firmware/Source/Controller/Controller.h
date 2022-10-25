@@ -23,6 +23,7 @@ typedef enum __DeviceSubState
 	SS_None = 0,
 	SS_ConfigMUX,
 	SS_ConfigKeithley,
+	SS_ConfigDevider,
 	SS_WaitCommutation,
 	SS_ConfigSync,
 	//

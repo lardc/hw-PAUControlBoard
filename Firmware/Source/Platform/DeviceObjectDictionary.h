@@ -36,6 +36,8 @@
 #define REG_SFTST_KEI_I_MUX_IGTU		3	// Эталонное значение тока при MUX в положении IGTU (мА)
 #define REG_SFTST_KEI_I_MUX_LCTU		4	// Эталонное значение тока при MUX в положении LCTU без делителя (мА)
 #define REG_SFTST_KEI_I_MUX_LCTU_DIV	5	// Эталонное значение тока при MUX в положении LCTU с делителем (мА)
+//
+#define REG_I_DIV_FACTOR				6	// Коэффициент деления делителя тока
 
 
 // Несохраняемы регистры чтения-записи
