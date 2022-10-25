@@ -10,7 +10,6 @@
 #include "SysConfig.h"
 #include "DebugActions.h"
 #include "Diagnostic.h"
-#include "Logic.h"
 #include "BCCIxParams.h"
 #include "SelfTest.h"
 
@@ -40,6 +39,8 @@ void CONTROL_UpdateWatchDog();
 void CONTROL_ResetToDefaultState();
 void CONTROL_LogicProcess();
 void CONTROL_SaveTestResult();
+void CONTROL_ResetOutputRegisters();
+void CONTROL_HardwareDefaultState();
 
 // Functions
 //
@@ -67,7 +68,8 @@ void CONTROL_Init()
 
 void CONTROL_ResetToDefaultState()
 {
-	LOGIC_ResetOutputRegisters();
+	CONTROL_ResetOutputRegisters();
+	CONTROL_HardwareDefaultState();
 	CONTROL_SetDeviceState(DS_None, SS_None);
 }
 //------------------------------------------
@@ -90,8 +92,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
 			{
-				LOGIC_ResetOutputRegisters();
-				CONTROL_SetDeviceState(DS_None, SS_None);
+				CONTROL_ResetOutputRegisters();
+				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
+				CONTROL_SetDeviceState(DS_SelfTest, SS_Prepare);
 			}
 			else if(CONTROL_State != DS_Ready)
 				*pUserError = ERR_OPERATION_BLOCKED;
@@ -118,6 +121,17 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			DataTable[REG_WARNING] = WARNING_NONE;
 			break;
 
+		case ACT_RUN_SELF_TEST:
+			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
+			{
+				CONTROL_ResetOutputRegisters();
+				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
+				CONTROL_SetDeviceState(DS_SelfTest, SS_Prepare);
+			}
+			else
+				*pUserError = ERR_OPERATION_BLOCKED;
+			break;
+
 		default:
 			return DIAG_HandleDiagnosticAction(ActionID, pUserError);
 			
@@ -128,14 +142,39 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 
 void CONTROL_LogicProcess()
 {
-	switch(CONTROL_SubState)
+	if(CONTROL_State == DS_InProcess)
 	{
-		default:
-			break;
+		switch(CONTROL_SubState)
+		{
+			default:
+				break;
+		}
 	}
 
 	if(CONTROL_State == DS_SelfTest)
 		SELFTEST_Process();
+}
+//-----------------------------------------------
+
+void CONTROL_HardwareDefaultState()
+{
+	LL_SetStateExtLED(false);
+	LL_SetStateSelfTestCurrent(false);
+	LL_SwitchMuxToDefault();
+	LL_SwitchSyncOff();
+}
+//-----------------------------------------------
+
+void CONTROL_ResetOutputRegisters()
+{
+	DataTable[REG_FAULT_REASON] = DF_NONE;
+	DataTable[REG_DISABLE_REASON] = DF_NONE;
+	DataTable[REG_WARNING] = WARNING_NONE;
+	DataTable[REG_PROBLEM] = PROBLEM_NONE;
+	DataTable[REG_OP_RESULT] = OPRESULT_NONE;
+	//
+	DEVPROFILE_ResetScopes(0);
+	DEVPROFILE_ResetEPReadState();
 }
 //-----------------------------------------------
 

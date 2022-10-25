@@ -17,6 +17,9 @@
 #define ACT_DBG_CURRENT_DIVIDER			17	// 1 - включить делитель тока, 0 - выключить делитель тока
 #define ACT_DBG_GENERATE_SYNC_KEI		18	// Формирование импульса синхронизации для Keithley 6485
 #define ACT_DBG_SEND_DATA_TO_KEI		19	// Отправить данные в Keithley 6485
+//
+#define ACT_CONFIG						100	// Сконфигурировать блок
+#define ACT_RUN_SELF_TEST				101	// Запуск самодиагностики
 
 #define ACT_SAVE_TO_ROM					200	// Сохранение пользовательских данных во FLASH процессора
 #define ACT_RESTORE_FROM_ROM			201	// Восстановление данных из FLASH
@@ -36,6 +39,9 @@
 
 
 // Несохраняемы регистры чтения-записи
+#define REG_CHANNEL						128	// 0 - канал не выбран, 1 - LCTU, 2 - IGTU
+#define REG_RANGE						129	// Выбор дипазона измерения тока (mA)
+//
 #define REG_DBG							150	// Отладочный регистр
 
 
