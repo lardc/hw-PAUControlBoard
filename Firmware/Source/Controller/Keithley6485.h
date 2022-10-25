@@ -27,6 +27,7 @@
 //
 #define KEI_FIFO_LENGTH					20
 #define KEI_RECEIVE_TIME				2						// in ms
+#define KEI_CURRENT_MAX					20						// in mA
 
 // Functions prototypes
 //
@@ -36,5 +37,6 @@ float KEI_ReadData();
 void KEI_ReceiveData(USART_TypeDef* USARTx);
 void KEI_SwitchToSyncWaiting();
 float KEI_Measure();
+void KEI_SetADCRate(float Rate);
 
 #endif /* CONTROLLER_KEITHLEY6485_H_ */

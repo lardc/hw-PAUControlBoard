@@ -22,7 +22,6 @@ Int16U NPLC_Time = 0;
 void KEI_Reset();
 void KEI_ZeroCorrect();
 void KEI_TriggerLinkConfig();
-void KEI_SetADCRate(float Rate);
 void KEI_SendData(char* Data, Int16U Bytes);
 float KEI_ExtractData();
 
@@ -75,7 +74,7 @@ void KEI_SetRange(float Current)
 		KEI_SendData("CURR:RANG 200E-6", 16);	// 200uA
 	else if(Current <= RANGE_2mA)
 		KEI_SendData("CURR:RANG 2E-3", 14); 	// 2mA
-	else if(Current <= RANGE_20mA)
+	else
 		KEI_SendData("CURR:RANG 20E-3", 15); 	// 20mA
 }
 //----------------------------------
