@@ -8,6 +8,8 @@
 #include "Delay.h"
 #include "Math.h"
 #include "stdio.h"
+#include "Interrupts.h"
+#include "Controller.h"
 
 // Variables
 //
@@ -97,7 +99,7 @@ void KEI_SetADCRate(float Rate)
 
 	KEI_SendData(&Temp[0], 13);
 
-	NPLC_Time = RoundedRate * PLC_TIME;
+	NPLC_Time = RoundedRate * PLC_TIME + PLC_TIME_OFFSET;
 }
 //----------------------------------
 
@@ -117,6 +119,11 @@ void KEI_TriggerLinkConfig()
 
 void KEI_SwitchToSyncWaiting()
 {
+	FlagSyncFromLCTU = false;
+	FlagSyncFromIGTU = false;
+	FlagSyncToLCTU = false;
+	FlagSyncToIGTU = false;
+
 	KEI_SendData("INIT", 4);
 }
 //----------------------------------
@@ -132,9 +139,14 @@ float KEI_ReadData()
 
 float KEI_Measure()
 {
+	Int16U TimeCounter = 0;
+
 	KEI_SwitchToSyncWaiting();
 	LL_GenerateSyncToKeithley();
-	DELAY_MS(NPLC_Time);
+
+	TimeCounter = CONTROL_TimeCounter + NPLC_Time;
+
+	while(CONTROL_TimeCounter < TimeCounter && !FlagSyncToLCTU && !FlagSyncToIGTU){}
 
 	return KEI_ReadData();
 }
