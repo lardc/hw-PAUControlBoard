@@ -11,6 +11,13 @@
 #include "Logic.h"
 #include "Keithley6485.h"
 
+// Variables
+//
+bool FlagSyncFromLCTU = false;
+bool FlagSyncFromIGTU = false;
+bool FlagSyncToLCTU = false;
+bool FlagSyncToIGTU = false;
+
 // Functions
 //
 void USART1_IRQHandler()
@@ -58,5 +65,21 @@ void TIM7_IRQHandler()
 
 		TIM_StatusClear(TIM7);
 	}
+}
+//-----------------------------------------
+
+void EXTI9_5_IRQHandler()
+{
+	if(LL_CheckSyncFromLCTU())
+		FlagSyncFromLCTU = true;
+
+	if(LL_CheckSyncToLCTU())
+		FlagSyncToLCTU = true;
+
+	if(LL_CheckSyncFromIGTU())
+		FlagSyncFromIGTU = true;
+
+	if(LL_CheckSyncToIGTU())
+		FlagSyncToIGTU = true;
 }
 //-----------------------------------------

@@ -84,6 +84,54 @@ void LL_GenerateSyncToKeithley()
 }
 //-----------------------------
 
+bool LL_CheckSyncFromLCTU()
+{
+	if(EXTI_FlagCheck(EXTI_5))
+	{
+		EXTI_FlagReset(EXTI_5);
+		return true;
+	}
+	else
+		return false;
+}
+//-----------------------------
+
+bool LL_CheckSyncFromIGTU()
+{
+	if(EXTI_FlagCheck(EXTI_4))
+	{
+		EXTI_FlagReset(EXTI_4);
+		return true;
+	}
+	else
+		return false;
+}
+//-----------------------------
+
+bool LL_CheckSyncToLCTU()
+{
+	if(EXTI_FlagCheck(EXTI_9))
+	{
+		EXTI_FlagReset(EXTI_9);
+		return true;
+	}
+	else
+		return false;
+}
+//-----------------------------
+
+bool LL_CheckSyncToIGTU()
+{
+	if(EXTI_FlagCheck(EXTI_7))
+	{
+		EXTI_FlagReset(EXTI_7);
+		return true;
+	}
+	else
+		return false;
+}
+//-----------------------------
+
 void LL_SetStateCurrentDivider(bool State)
 {
 	GPIO_SetState(GPIO_IDIV2, State);
