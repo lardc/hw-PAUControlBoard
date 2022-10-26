@@ -8,13 +8,15 @@
 #include "Delay.h"
 #include "Math.h"
 #include "stdio.h"
+#include "stdlib.h"
 #include "Interrupts.h"
 #include "Controller.h"
 #include "DeviceObjectDictionary.h"
 
 // Definitions
 //
-#define KEI_MSR_DATA_LENGTH			6
+#define KEI_MSR_PACKAGE_LENGTH			6
+#define KEI_MSR_DATA_LENGTH				4
 
 // Variables
 //
@@ -137,7 +139,7 @@ float KEI_ReadData()
 	KEI_SendData("SENS:DATA?", 10);
 	DELAY_MS(KEI_RECEIVE_TIME);
 
-	if(KEI_RXcount == KEI_MSR_DATA_LENGTH)
+	if(KEI_RXcount == KEI_MSR_PACKAGE_LENGTH)
 		return KEI_ExtractData();
 	else
 	{
@@ -187,9 +189,13 @@ void KEI_ReceiveData(USART_TypeDef* USARTx)
 
 float KEI_ExtractData()
 {
-	KEI_RXcount = 0;
-	//KEI_Fifo[0];
+	char Data[KEI_MSR_DATA_LENGTH];
 
-	return 0;
+	KEI_RXcount = 0;
+
+	for(int i = 0; i < KEI_MSR_DATA_LENGTH; i++)
+		Data[i] = KEI_Fifo[i];
+
+	return atoff(&Data[0]);
 }
 //----------------------------------
