@@ -34,7 +34,7 @@ volatile Int64U CONTROL_TimeCounter = 0;
 Int64U CONTROL_CommutationDelayCounter = 0;
 Int64U CONTROL_TimeoutCounter = 0;
 //
-float CurrentDivisionFactor = 1;
+float CurrentDividerRatio = 1;
 //
 
 // Forward functions
@@ -95,11 +95,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 	{
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
-			{
-				CONTROL_ResetOutputRegisters();
-				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
 				CONTROL_SetDeviceState(DS_InProcess, ST_Prepare);
-			}
 			else if(CONTROL_State != DS_Ready)
 				*pUserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -125,21 +121,14 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 
 		case ACT_RUN_SELF_TEST:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
-			{
-				CONTROL_ResetOutputRegisters();
-				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
 				CONTROL_SetDeviceState(DS_InProcess, ST_Prepare);
-			}
 			else
 				*pUserError = ERR_OPERATION_BLOCKED;
 			break;
 
 		case ACT_CONFIG:
 			if(CONTROL_State == DS_Ready || CONTROL_State == DS_ConfigReady)
-			{
-				CONTROL_ResetOutputRegisters();
-				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigMUX);
-			}
+				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigKeithley);
 			else
 				if (CONTROL_State == DS_InProcess)
 					*pUserError = ERR_OPERATION_BLOCKED;
@@ -161,25 +150,26 @@ void CONTROL_LogicProcess()
 	{
 		switch(CONTROL_SubState)
 		{
-		case SS_ConfigMUX:
-			(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchMuxToLCTU() : LL_SwitchMuxToIGTU();
-			CONTROL_SetDeviceState(DS_InProcess, SS_ConfigKeithley);
-			break;
-
 		case SS_ConfigKeithley:
 			KEI_SetRange(DataTable[REG_RANGE]);
 			KEI_SetADCRate(DataTable[REG_MEASUREMENT_TIME] / PLC_TIME);
-			CONTROL_CommutationDelayCounter = CONTROL_TimeCounter + COMMUTATION_DELAY_MS;
+			CONTROL_SetDeviceState(DS_InProcess, SS_ConfigMUX);
+			break;
+
+		case SS_ConfigMUX:
+			(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchMuxToLCTU() : LL_SwitchMuxToIGTU();
 			CONTROL_SetDeviceState(DS_InProcess, SS_ConfigDevider);
 			break;
 
 		case SS_ConfigDevider:
+			CurrentDividerRatio = 1;
+
 			if(DataTable[REG_CHANNEL] == CHANNEL_LCTU && DataTable[REG_RANGE] > KEI_CURRENT_MAX)
 			{
-				CurrentDivisionFactor = DataTable[REG_I_DIV_FACTOR];
+				CurrentDividerRatio = DataTable[REG_I_DIV_FACTOR];
 				LL_SetStateCurrentDivider(true);
 			}
-
+			CONTROL_CommutationDelayCounter = CONTROL_TimeCounter + COMMUTATION_DELAY_MS;
 			CONTROL_SetDeviceState(DS_InProcess, SS_WaitCommutation);
 			break;
 
@@ -189,8 +179,8 @@ void CONTROL_LogicProcess()
 			break;
 
 		case SS_ConfigSync:
-			KEI_SwitchToSyncWaiting();
 			(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchSyncToLCTU() : LL_SwitchSyncToIGTU();
+			KEI_SwitchToSyncWaiting();
 			CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
 			CONTROL_SetDeviceState(DS_ConfigReady, SS_None);
 			break;
@@ -204,7 +194,6 @@ void CONTROL_LogicProcess()
 			CONTROL_SaveTestResult();
 			CONTROL_HardwareDefaultState();
 			CONTROL_SetDeviceState(DS_Ready, SS_None);
-
 			break;
 
 		default:
@@ -247,7 +236,7 @@ void CONTROL_ResetOutputRegisters()
 
 void CONTROL_SaveTestResult()
 {
-	DataTable[REG_RESULT_CURRENT] = KEI_ReadData() * CurrentDivisionFactor;
+	DataTable[REG_RESULT_CURRENT] = KEI_ReadData() * CurrentDividerRatio;
 	DataTable[REG_OP_RESULT] = OPRESULT_OK;
 }
 //-----------------------------------------------
