@@ -10,6 +10,11 @@
 #include "stdio.h"
 #include "Interrupts.h"
 #include "Controller.h"
+#include "DeviceObjectDictionary.h"
+
+// Definitions
+//
+#define KEI_MSR_DATA_LENGTH			6
 
 // Variables
 //
@@ -132,7 +137,13 @@ float KEI_ReadData()
 	KEI_SendData("SENS:DATA?", 10);
 	DELAY_MS(KEI_RECEIVE_TIME);
 
-	return KEI_ExtractData();
+	if(KEI_RXcount == KEI_MSR_DATA_LENGTH)
+		return KEI_ExtractData();
+	else
+	{
+		CONTROL_SwitchToFault(DF_KEI_INTERFACE_TIMEOUT);
+		return 0;
+	}
 }
 //----------------------------------
 

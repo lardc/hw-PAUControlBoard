@@ -38,6 +38,8 @@
 #define REG_SFTST_KEI_I_MUX_LCTU_DIV	5	// Эталонное значение тока при MUX в положении LCTU с делителем (мА)
 //
 #define REG_I_DIV_FACTOR				6	// Коэффициент деления делителя тока
+#define REG_SYNC_WAIT_TIMEOUT			7	// Таймаут нахождения блока в состоянии DS_ConfigReady (мс)
+#define REG_KEI_MEASURE_TIMEOUT			8	// Таймаут измерения тока Keithley 6485 (мс)
 
 
 // Несохраняемы регистры чтения-записи
@@ -57,6 +59,8 @@
 #define REG_OP_RESULT					197	// Регистр результата операции
 #define REG_SELF_TEST_OP_RESULT			198	// Регистр результата самотестирования
 #define REG_SUB_STATE					199	// Регистр вспомогательного состояния
+//
+#define REG_RESULT_CURRENT				200	// Измеренное значение тока
 // -----------------------------
 #define REG_FWINFO_SLAVE_NID			256	// Device CAN slave node ID
 #define REG_FWINFO_MASTER_NID			257	// Device CAN master node ID (if presented)
@@ -74,12 +78,15 @@
 #define DF_NONE							0
 #define DF_TEST_I_SET					1
 #define DF_TEST_I_MEASURE				2
+#define DF_MEASURE_TIMEOUT				3
+#define DF_KEI_INTERFACE_TIMEOUT		4
 
 // Problem
 #define PROBLEM_NONE					0
 
 //  Warning
 #define WARNING_NONE					0
+#define WARNING_SYNC_WAIT_TIMEOUT		1
 
 //  User Errors
 #define ERR_NONE						0

@@ -80,5 +80,14 @@ void EXTI9_5_IRQHandler()
 
 	if(LL_CheckSyncToIGTU())
 		FlagSyncToIGTU = true;
+
+	if(FlagSyncFromLCTU || FlagSyncFromIGTU)
+	{
+		CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_KEI_MEASURE_TIMEOUT];
+		CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
+	}
+
+	if(FlagSyncToLCTU || FlagSyncToIGTU)
+		CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
 }
 //-----------------------------------------

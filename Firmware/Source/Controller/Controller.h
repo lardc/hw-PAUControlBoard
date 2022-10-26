@@ -26,6 +26,8 @@ typedef enum __DeviceSubState
 	SS_ConfigDevider,
 	SS_WaitCommutation,
 	SS_ConfigSync,
+	SS_Measurement,
+	SS_SaveResults,
 	//
 	ST_Prepare = 10,
 	ST_Measure,
@@ -40,6 +42,7 @@ extern volatile Int64U CONTROL_TimeCounter;
 extern volatile DeviceState CONTROL_State;
 extern volatile DeviceSubState CONTROL_SubState;
 extern Int64U CONTROL_LEDTimeout;
+extern Int64U CONTROL_TimeoutCounter;
 //
 extern Int16U MEMBUF_Values_Write[VALUES_x_SIZE];
 extern Int16U MEMBUF_ValuesWrite_Counter;
@@ -53,5 +56,6 @@ void CONTROL_DelayMs(uint32_t Delay);
 void CONTROL_SwitchToFault(Int16U Reason);
 void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
 void CONTROL_SetDeviceSubState(DeviceSubState NewSubState);
+void CONTROL_HardwareDefaultState();
 
 #endif // __CONTROLLER_H

@@ -85,14 +85,12 @@ void SELFTEST_Process()
 				}
 				else
 				{
-					SELFTEST_StopProcess();
 					DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
 					CONTROL_SwitchToFault(DF_TEST_I_MEASURE);
 				}
 			}
 			else
 			{
-				SELFTEST_StopProcess();
 				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
 				CONTROL_SwitchToFault(DF_TEST_I_SET);
 			}
@@ -144,10 +142,7 @@ bool SELFTEST_TestCurrentCheck()
 
 void SELFTEST_StopProcess()
 {
-	LL_SetStateCurrentDivider(false);
-	LL_SetStateSelfTestCurrent(false);
-	LL_SwitchMuxToDefault();
-	LL_SwitchSyncOff();
+	CONTROL_HardwareDefaultState();
 }
 //-------------------------
 

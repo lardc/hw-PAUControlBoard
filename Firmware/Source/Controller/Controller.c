@@ -32,6 +32,8 @@ Int16U MEMBUF_ValuesWrite_Counter = 0;
 //
 volatile Int64U CONTROL_TimeCounter = 0;
 Int64U CONTROL_CommutationDelayCounter = 0;
+Int64U CONTROL_TimeoutCounter = 0;
+//
 float CurrentDivisionFactor = 1;
 //
 
@@ -43,7 +45,6 @@ void CONTROL_ResetToDefaultState();
 void CONTROL_LogicProcess();
 void CONTROL_SaveTestResult();
 void CONTROL_ResetOutputRegisters();
-void CONTROL_HardwareDefaultState();
 
 // Functions
 //
@@ -190,7 +191,20 @@ void CONTROL_LogicProcess()
 		case SS_ConfigSync:
 			KEI_SwitchToSyncWaiting();
 			(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchSyncToLCTU() : LL_SwitchSyncToIGTU();
+			CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
 			CONTROL_SetDeviceState(DS_ConfigReady, SS_None);
+			break;
+
+		case SS_Measurement:
+			if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+				CONTROL_SwitchToFault(DF_MEASURE_TIMEOUT);
+			break;
+
+		case SS_SaveResults:
+			CONTROL_SaveTestResult();
+			CONTROL_HardwareDefaultState();
+			CONTROL_SetDeviceState(DS_Ready, SS_None);
+
 			break;
 
 		default:
@@ -198,12 +212,20 @@ void CONTROL_LogicProcess()
 			break;
 		}
 	}
+
+	if(CONTROL_State == DS_ConfigReady && CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+	{
+		CONTROL_HardwareDefaultState();
+		DataTable[REG_WARNING] = WARNING_SYNC_WAIT_TIMEOUT;
+		CONTROL_SetDeviceState(DS_Ready, SS_None);
+	}
 }
 //-----------------------------------------------
 
 void CONTROL_HardwareDefaultState()
 {
 	LL_SetStateExtLED(false);
+	LL_SetStateCurrentDivider(false);
 	LL_SetStateSelfTestCurrent(false);
 	LL_SwitchMuxToDefault();
 	LL_SwitchSyncOff();
@@ -225,12 +247,16 @@ void CONTROL_ResetOutputRegisters()
 
 void CONTROL_SaveTestResult()
 {
+	DataTable[REG_RESULT_CURRENT] = KEI_ReadData() * CurrentDivisionFactor;
 	DataTable[REG_OP_RESULT] = OPRESULT_OK;
 }
 //-----------------------------------------------
 
 void CONTROL_SwitchToFault(Int16U Reason)
 {
+	CONTROL_ResetOutputRegisters();
+	CONTROL_HardwareDefaultState();
+
 	CONTROL_SetDeviceState(DS_Fault, SS_None);
 	DataTable[REG_FAULT_REASON] = Reason;
 }
