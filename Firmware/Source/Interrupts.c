@@ -1,14 +1,9 @@
 ﻿// Include
 #include "Interrupts.h"
 //
-#include "Controller.h"
 #include "LowLevel.h"
-#include "Board.h"
-#include "SysConfig.h"
-#include "Global.h"
-#include "DataTable.h"
-#include "DeviceObjectDictionary.h"
 #include "Keithley6485.h"
+#include "Constraints.h"
 
 // Variables
 //
@@ -16,6 +11,15 @@ bool FlagSyncFromLCTU = false;
 bool FlagSyncFromIGTU = false;
 bool FlagSyncToLCTU = false;
 bool FlagSyncToIGTU = false;
+
+
+// Functions prototypes
+//
+bool INT_CheckSyncFromLCTU();
+bool INT_CheckSyncFromIGTU();
+bool INT_CheckSyncToLCTU();
+bool INT_CheckSyncToIGTU();
+
 
 // Functions
 //
@@ -69,25 +73,58 @@ void TIM7_IRQHandler()
 
 void EXTI9_5_IRQHandler()
 {
-	if(LL_CheckSyncFromLCTU())
-		FlagSyncFromLCTU = true;
-
-	if(LL_CheckSyncToLCTU())
-		FlagSyncToLCTU = true;
-
-	if(LL_CheckSyncFromIGTU())
-		FlagSyncFromIGTU = true;
-
-	if(LL_CheckSyncToIGTU())
-		FlagSyncToIGTU = true;
-
-	if(FlagSyncFromLCTU || FlagSyncFromIGTU)
+	if(CONTROL_State == DS_ConfigReady && (INT_CheckSyncFromLCTU() || INT_CheckSyncFromIGTU()))
 	{
 		CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_KEI_MEASURE_TIMEOUT];
 		CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
 	}
 
-	if(FlagSyncToLCTU || FlagSyncToIGTU)
+
+	if(INT_CheckSyncToLCTU() || INT_CheckSyncToIGTU())
 		CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
+}
+//-----------------------------------------
+
+bool INT_CheckSyncFromLCTU()
+{
+	if(LL_CheckSyncFromLCTU() && DataTable[REG_CHANNEL] == CHANNEL_LCTU)
+		FlagSyncFromLCTU = true;
+	else
+		FlagSyncFromLCTU = false;
+
+	return FlagSyncFromLCTU;
+}
+//-----------------------------------------
+
+bool INT_CheckSyncFromIGTU()
+{
+	if(LL_CheckSyncFromIGTU() && DataTable[REG_CHANNEL] == CHANNEL_IGTU)
+		FlagSyncFromIGTU = true;
+	else
+		FlagSyncFromIGTU = false;
+
+	return FlagSyncFromIGTU;
+}
+//-----------------------------------------
+
+bool INT_CheckSyncToLCTU()
+{
+	if(LL_CheckSyncToLCTU() && DataTable[REG_CHANNEL] == CHANNEL_LCTU)
+		FlagSyncToLCTU = true;
+	else
+		FlagSyncToLCTU = false;
+
+	return FlagSyncToLCTU;
+}
+//-----------------------------------------
+
+bool INT_CheckSyncToIGTU()
+{
+	if(LL_CheckSyncToIGTU() && DataTable[REG_CHANNEL] == CHANNEL_IGTU)
+		FlagSyncToIGTU = true;
+	else
+		FlagSyncToIGTU = false;
+
+	return FlagSyncToIGTU;
 }
 //-----------------------------------------

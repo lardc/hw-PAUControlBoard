@@ -5,7 +5,6 @@
 #include "Board.h"
 #include "stdinc.h"
 
-
 // Functions
 //
 void LL_ToggleBoardLED();
