@@ -77,12 +77,12 @@
 #define OPRESULT_FAIL					2	// Operation failed
 
 //  Fault and disable codes
-#define DF_NONE							0
-#define DF_TEST_I_SET					1
-#define DF_TEST_I_MEASURE				2
-#define DF_MEASURE_TIMEOUT				3
-#define DF_KEI_INTERFACE_TIMEOUT		4
-#define DF_KEI_SYNC_TIMEOUT				5
+#define DF_NONE							0	// No fault
+#define DF_TEST_I_SET					1	// Test current generation fault
+#define DF_TEST_I_MEASURE				2	// Test current measurement fault
+#define DF_MEASURE_TIMEOUT				3	// Measurement timeout
+#define DF_KEI_INTERFACE_TIMEOUT		4	// Timeout receiving data from Keithley 6485
+#define DF_KEI_SYNC_TIMEOUT				5	// Timeout receiving sync from Keithley 6485
 
 // Problem
 #define PROBLEM_NONE					0
