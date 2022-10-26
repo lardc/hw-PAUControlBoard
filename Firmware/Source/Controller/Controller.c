@@ -35,6 +35,7 @@ Int64U CONTROL_CommutationDelayCounter = 0;
 Int64U CONTROL_TimeoutCounter = 0;
 //
 float CurrentDividerRatio = 1;
+bool CONTROL_SoftwareStartMeasure = false;
 //
 
 // Forward functions
@@ -128,7 +129,23 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 
 		case ACT_CONFIG:
 			if(CONTROL_State == DS_Ready || CONTROL_State == DS_ConfigReady)
+			{
+				CONTROL_SoftwareStartMeasure = false;
 				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigKeithley);
+			}
+			else
+				if (CONTROL_State == DS_InProcess)
+					*pUserError = ERR_OPERATION_BLOCKED;
+				else
+					*pUserError = ERR_DEVICE_NOT_READY;
+			break;
+
+		case ACT_START_MEASURE:
+			if(CONTROL_State == DS_Ready)
+			{
+				CONTROL_SoftwareStartMeasure = true;
+				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigKeithley);
+			}
 			else
 				if (CONTROL_State == DS_InProcess)
 					*pUserError = ERR_OPERATION_BLOCKED;
@@ -179,15 +196,28 @@ void CONTROL_LogicProcess()
 			break;
 
 		case SS_ConfigSync:
-			(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchSyncToLCTU() : LL_SwitchSyncToIGTU();
-			KEI_SwitchToSyncWaiting();
-			CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
-			CONTROL_SetDeviceState(DS_ConfigReady, SS_None);
+			if(!CONTROL_SoftwareStartMeasure)
+			{
+				(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchSyncToLCTU() : LL_SwitchSyncToIGTU();
+				KEI_SwitchToSyncWaiting();
+				CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
+				CONTROL_SetDeviceState(DS_ConfigReady, SS_None);
+			}
+			else
+				CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
 			break;
 
 		case SS_Measurement:
-			if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
-				CONTROL_SwitchToFault(DF_MEASURE_TIMEOUT);
+			if(!CONTROL_SoftwareStartMeasure)
+			{
+				if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+					CONTROL_SwitchToFault(DF_MEASURE_TIMEOUT);
+			}
+			else
+			{
+				LL_GenerateSyncToKeithley();
+				CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
+			}
 			break;
 
 		case SS_SaveResults:

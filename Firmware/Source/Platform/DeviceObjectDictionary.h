@@ -19,7 +19,9 @@
 #define ACT_DBG_SEND_DATA_TO_KEI		19	// Отправить данные в Keithley 6485
 //
 #define ACT_CONFIG						100	// Сконфигурировать блок
-#define ACT_RUN_SELF_TEST				101	// Запуск самодиагностики
+#define ACT_START_MEASURE				101	// Запуск измерения
+//
+#define ACT_RUN_SELF_TEST				110	// Запуск самодиагностики
 
 #define ACT_SAVE_TO_ROM					200	// Сохранение пользовательских данных во FLASH процессора
 #define ACT_RESTORE_FROM_ROM			201	// Восстановление данных из FLASH
