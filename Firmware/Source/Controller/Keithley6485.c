@@ -158,7 +158,13 @@ float KEI_Measure()
 
 	while(CONTROL_TimeCounter < TimeCounter && !FlagSyncToLCTU && !FlagSyncToIGTU){}
 
-	return KEI_ReadData();
+	if(CONTROL_TimeCounter < TimeCounter)
+		return KEI_ReadData();
+	else
+	{
+		CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
+		return 0;
+	}
 }
 //----------------------------------
 

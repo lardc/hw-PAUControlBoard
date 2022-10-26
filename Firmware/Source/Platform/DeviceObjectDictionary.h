@@ -80,6 +80,7 @@
 #define DF_TEST_I_MEASURE				2
 #define DF_MEASURE_TIMEOUT				3
 #define DF_KEI_INTERFACE_TIMEOUT		4
+#define DF_KEI_SYNC_TIMEOUT				5
 
 // Problem
 #define PROBLEM_NONE					0
