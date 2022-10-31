@@ -75,6 +75,8 @@ void CONTROL_ResetToDefaultState()
 {
 	CONTROL_ResetOutputRegisters();
 	CONTROL_HardwareDefaultState();
+	KEI_ResetRxConuter();
+
 	CONTROL_SetDeviceState(DS_None, SS_None);
 }
 //------------------------------------------
@@ -266,8 +268,13 @@ void CONTROL_ResetOutputRegisters()
 
 void CONTROL_SaveTestResult()
 {
-	DataTable[REG_RESULT_CURRENT] = KEI_ReadData() * CurrentDividerRatio;
-	DataTable[REG_OP_RESULT] = OPRESULT_OK;
+	float KEI_Data = 0;
+
+	if(KEI_ReadData(&KEI_Data))
+	{
+		DataTable[REG_RESULT_CURRENT] = KEI_Data * CurrentDividerRatio;
+		DataTable[REG_OP_RESULT] = OPRESULT_OK;
+	}
 }
 //-----------------------------------------------
 
@@ -275,6 +282,7 @@ void CONTROL_SwitchToFault(Int16U Reason)
 {
 	CONTROL_ResetOutputRegisters();
 	CONTROL_HardwareDefaultState();
+	KEI_ResetRxConuter();
 
 	CONTROL_SetDeviceState(DS_Fault, SS_None);
 	DataTable[REG_FAULT_REASON] = Reason;

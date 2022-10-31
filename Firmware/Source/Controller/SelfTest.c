@@ -10,6 +10,7 @@
 #include "Board.h"
 #include "LowLevel.h"
 #include "Keithley6485.h"
+#include "math.h"
 
 // Definitions
 //
@@ -26,11 +27,15 @@ float RequiredTestCurrent = 0;
 //
 bool SELFTEST_TestCurrentCheck();
 void SELFTEST_StopProcess();
+void SELFTEST_FaultMUX(Int16U MUXState);
 
 // Functions
 //
 void SELFTEST_Process()
 {
+	static Int16U SelfTestSwitch = 0;
+	float KEI_Data = 0;
+
 	switch(CONTROL_SubState)
 	{
 	case ST_Prepare:
@@ -43,56 +48,67 @@ void SELFTEST_Process()
 		DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
 		CommutationDelayCounter = CONTROL_TimeCounter + DELAY_KEI_CONFIG;
 
-		CONTROL_SetDeviceSubState(ST_Measure);
+		CONTROL_SetDeviceSubState(ST_CurrentCheck);
+		break;
+
+	case ST_CurrentCheck:
+		if(CONTROL_TimeCounter >= CommutationDelayCounter)
+			{
+			if(SELFTEST_TestCurrentCheck())
+				CONTROL_SetDeviceSubState(ST_Interface);
+			else
+			{
+				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
+				CONTROL_SwitchToFault(DF_ST_KEI_LINE_OPEN);
+			}
+		}
+		break;
+
+	case ST_Interface:
+		if(KEI_ReadData(&KEI_Data))
+			CONTROL_SetDeviceSubState(ST_Measure);
 		break;
 
 	case ST_Measure:
 		if(CONTROL_TimeCounter >= CommutationDelayCounter)
 		{
-			if(SELFTEST_TestCurrentCheck())
+			if(KEI_Measure(&KEI_Data))
 			{
-				float KEI_Data = KEI_Measure();
-				float Error = (KEI_Data - RequiredTestCurrent) / RequiredTestCurrent * 100;
+				float Error = fabs((KEI_Data - RequiredTestCurrent) / RequiredTestCurrent * 100);
 
 				if(Error <= DataTable[REG_SFTST_I_ALOWED_ERR])
 				{
-					static Int16U SelfTestSwitch = 0;
-
 					switch(SelfTestSwitch)
 					{
 					case 0:
+						SelfTestSwitch++;
 						CONTROL_SetDeviceSubState(ST_IGTU_ChannelCheck);
 						break;
 
 					case 1:
+						SelfTestSwitch++;
 						LL_SelfTestChannel_IGTU(false);
 						CONTROL_SetDeviceSubState(ST_LCTU_ChannelCheck);
 						break;
 
 					case 2:
+						SelfTestSwitch++;
 						CONTROL_SetDeviceSubState(ST_CurrentDeviderCheck);
 						break;
 
 					case 3:
-						SelfTestSwitch = 0;
 						SELFTEST_StopProcess();
+						SelfTestSwitch = 0;
 						DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_OK;
 						CONTROL_SetDeviceState(DS_Ready, SS_None);
 						break;
 					}
-
-					SelfTestSwitch++;
 				}
 				else
 				{
-					DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
-					CONTROL_SwitchToFault(DF_TEST_I_MEASURE);
+					SELFTEST_FaultMUX(SelfTestSwitch);
+					SelfTestSwitch = 0;
 				}
-			}
-			else
-			{
-				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
-				CONTROL_SwitchToFault(DF_TEST_I_SET);
 			}
 		}
 		break;
@@ -127,14 +143,39 @@ void SELFTEST_Process()
 }
 //-------------------------
 
+void SELFTEST_FaultMUX(Int16U MUXState)
+{
+	DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
+
+	switch(MUXState)
+	{
+	case 0:
+		CONTROL_SwitchToFault(DF_ST_KEI_LINE_SHORT);
+		break;
+
+	case 1:
+		CONTROL_SwitchToFault(DF_ST_MUX_IGTU);
+		break;
+
+	case 2:
+		CONTROL_SwitchToFault(DF_ST_MUX_LCTU);
+		break;
+
+	case 3:
+		CONTROL_SwitchToFault(DF_ST_DIVIDER);
+		break;
+	}
+}
+//-------------------------
+
 bool SELFTEST_TestCurrentCheck()
 {
 	float CalculatedTestCurrent, MeasuredTestCurrent, Error;
 
-	CalculatedTestCurrent = ADC_REF_VOLTAGE / (2 * DataTable[REG_SFTST_R_SHUNT]);
+	CalculatedTestCurrent = ADC_REF_VOLTAGE / (2 * DataTable[REG_SFTST_R_SHUNT] + DataTable[REG_SFTST_R_KEI]);
 	MeasuredTestCurrent = (float)ADC_Measure(ADC1, ADC_I_CHANNEL) * ADC_REF_VOLTAGE / ADC_RESOLUTION / DataTable[REG_SFTST_R_SHUNT];
 
-	Error = (MeasuredTestCurrent - CalculatedTestCurrent) / CalculatedTestCurrent * 100;
+	Error = fabs((MeasuredTestCurrent - CalculatedTestCurrent) / CalculatedTestCurrent * 100);
 
 	return (Error >= DataTable[REG_SFTST_I_ALOWED_ERR]) ? false : true;
 }

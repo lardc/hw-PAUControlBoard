@@ -22,7 +22,7 @@
 #define NPLC_MAX						5
 #define NPLC_DEF						1
 #define PLC_TIME						67						// in ms
-#define PLC_TIME_OFFSET					PLC_TIME * 0.1
+#define PLC_TIME_COEFFICIENT			2
 
 //
 #define KEI_FIFO_LENGTH					100
@@ -33,10 +33,11 @@
 //
 void KEI_Config();
 void KEI_SetRange(float Current);
-float KEI_ReadData();
+bool KEI_ReadData(float* Data);
 void KEI_ReceiveData(USART_TypeDef* USARTx);
 void KEI_SwitchToSyncWaiting();
-float KEI_Measure();
+bool KEI_Measure(float* Data);
 void KEI_SetADCRate(float Rate);
+void KEI_ResetRxConuter();
 
 #endif /* CONTROLLER_KEITHLEY6485_H_ */

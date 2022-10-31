@@ -62,7 +62,7 @@ void TIM7_IRQHandler()
 		CONTROL_TimeCounter++;
 		if(++LED_BlinkTimeCounter > TIME_LED_BLINK)
 		{
-			//LL_ToggleBoardLED();
+			LL_ToggleBoardLED();
 			LED_BlinkTimeCounter = 0;
 		}
 

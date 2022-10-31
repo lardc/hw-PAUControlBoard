@@ -38,10 +38,11 @@
 #define REG_SFTST_KEI_I_MUX_IGTU		3	// Эталонное значение тока при MUX в положении IGTU (мА)
 #define REG_SFTST_KEI_I_MUX_LCTU		4	// Эталонное значение тока при MUX в положении LCTU без делителя (мА)
 #define REG_SFTST_KEI_I_MUX_LCTU_DIV	5	// Эталонное значение тока при MUX в положении LCTU с делителем (мА)
+#define REG_SFTST_R_KEI					6	//	Сопротивление в цепи измерения тока Keithley (Ом)
 //
-#define REG_I_DIV_FACTOR				6	// Коэффициент деления делителя тока
-#define REG_SYNC_WAIT_TIMEOUT			7	// Таймаут нахождения блока в состоянии DS_ConfigReady (мс)
-#define REG_KEI_MEASURE_TIMEOUT			8	// Таймаут измерения тока Keithley 6485 (мс)
+#define REG_I_DIV_FACTOR				7	// Коэффициент деления делителя тока
+#define REG_SYNC_WAIT_TIMEOUT			8	// Таймаут нахождения блока в состоянии DS_ConfigReady (мс)
+#define REG_KEI_MEASURE_TIMEOUT			9	// Таймаут измерения тока Keithley 6485 (мс)
 
 
 // Несохраняемы регистры чтения-записи
@@ -78,11 +79,15 @@
 
 //  Fault and disable codes
 #define DF_NONE							0	// No fault
-#define DF_TEST_I_SET					1	// Test current generation fault
-#define DF_TEST_I_MEASURE				2	// Test current measurement fault
-#define DF_MEASURE_TIMEOUT				3	// Measurement timeout
-#define DF_KEI_INTERFACE_TIMEOUT		4	// Timeout receiving data from Keithley 6485
-#define DF_KEI_SYNC_TIMEOUT				5	// Timeout receiving sync from Keithley 6485
+#define DF_ST_KEI_LINE_OPEN				1	// Selftest - Test current generation fault (Keithley line open)
+#define DF_ST_KEI_LINE_SHORT			2	// Selftest - Short circuit in the Keithley line
+#define DF_ST_MUX_IGTU					3	// Selftest - IGTU MUX has a problem
+#define DF_ST_MUX_LCTU					4	// Selftest - LCTU MUX has a problem
+#define DF_ST_DIVIDER					5	// Selftest - Current divider has a problem
+//
+#define DF_MEASURE_TIMEOUT				6	// Measurement timeout
+#define DF_KEI_INTERFACE_TIMEOUT		7	// Timeout receiving data from Keithley 6485
+#define DF_KEI_SYNC_TIMEOUT				8	// Timeout receiving sync from Keithley 6485
 
 // Problem
 #define PROBLEM_NONE					0

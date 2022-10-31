@@ -21,7 +21,7 @@
 //
 Int16U KEI_RXcount = 0;
 Int8U KEI_Fifo[KEI_FIFO_LENGTH];
-Int16U NPLC_Time = 0;
+Int16U KEI_ConversionTimeout = 0;
 
 // Functions prototypes
 //
@@ -115,7 +115,7 @@ void KEI_SetADCRate(float Rate)
 
 	KEI_SendData(&Temp[0], 13);
 
-	NPLC_Time = RoundedRate * PLC_TIME + PLC_TIME_OFFSET;
+	KEI_ConversionTimeout = (RoundedRate * PLC_TIME) * PLC_TIME_COEFFICIENT;
 }
 //----------------------------------
 
@@ -144,39 +144,40 @@ void KEI_SwitchToSyncWaiting()
 	FlagSyncToIGTU = false;
 
 	KEI_SendData("INIT", 4);
-
-	DELAY_MS(10);
 }
 //----------------------------------
 
-float KEI_ReadData()
+bool KEI_ReadData(float* Data)
 {
 	KEI_SendData("SENS:DATA?", 10);
 	DELAY_MS(KEI_RECEIVE_TIME);
 
 	if(KEI_RXcount >= KEI_MSR_PACKAGE_LENGTH)
-		return KEI_ExtractData();
+	{
+		*Data = KEI_ExtractData();
+		return true;
+	}
 	else
 	{
 		CONTROL_SwitchToFault(DF_KEI_INTERFACE_TIMEOUT);
-		return 0;
+		return false;
 	}
 }
 //----------------------------------
 
-float KEI_Measure()
+bool KEI_Measure(float* Data)
 {
-	Int16U TimeCounter = 0;
+	Int64U TimeCounter = 0;
 
 	KEI_SwitchToSyncWaiting();
 	LL_GenerateSyncToKeithley();
 
-	TimeCounter = CONTROL_TimeCounter + NPLC_Time;
+	TimeCounter = CONTROL_TimeCounter + KEI_ConversionTimeout;
 
 	while(CONTROL_TimeCounter < TimeCounter && !FlagSyncToLCTU && !FlagSyncToIGTU){}
 
 	if(CONTROL_TimeCounter < TimeCounter)
-		return KEI_ReadData();
+		return KEI_ReadData(Data);
 	else
 	{
 		CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
@@ -209,7 +210,7 @@ float KEI_ExtractData()
 	Int16U ExpStartAddress = 0;
 	float M, E;
 
-	KEI_RXcount = 0;
+	KEI_ResetRxConuter();
 
 	for(int i = 0; i < KEI_MSR_PACKAGE_LENGTH; i++)
 	{
@@ -233,5 +234,11 @@ float KEI_ExtractData()
 	E = atoff(&Exponenta[0]);
 
 	return (M * powf(10, E) * 1000);
+}
+//----------------------------------
+
+void KEI_ResetRxConuter()
+{
+	KEI_RXcount = 0;
 }
 //----------------------------------
