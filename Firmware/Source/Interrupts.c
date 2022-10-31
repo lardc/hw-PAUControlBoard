@@ -19,6 +19,7 @@ bool INT_CheckSyncFromLCTU();
 bool INT_CheckSyncFromIGTU();
 bool INT_CheckSyncToLCTU();
 bool INT_CheckSyncToIGTU();
+void INT_SyncInterruptProcess();
 
 
 // Functions
@@ -36,10 +37,9 @@ void USART1_IRQHandler()
 void USART2_IRQHandler()
 {
 	if(ZwSCI_RecieveCheck(USART2))
-	{
 		KEI_ReceiveData(USART2);
-		ZwSCI_RecieveFlagClear(USART2);
-	}
+
+	ZwSCI_RecieveFlagClear(USART2);
 }
 //-----------------------------------------
 
@@ -62,7 +62,7 @@ void TIM7_IRQHandler()
 		CONTROL_TimeCounter++;
 		if(++LED_BlinkTimeCounter > TIME_LED_BLINK)
 		{
-			LL_ToggleBoardLED();
+			//LL_ToggleBoardLED();
 			LED_BlinkTimeCounter = 0;
 		}
 
@@ -71,60 +71,61 @@ void TIM7_IRQHandler()
 }
 //-----------------------------------------
 
+void EXTI4_IRQHandler()
+{
+	INT_SyncInterruptProcess();
+}
+//-----------------------------------------
+
 void EXTI9_5_IRQHandler()
 {
-	if(CONTROL_State == DS_ConfigReady && (INT_CheckSyncFromLCTU() || INT_CheckSyncFromIGTU()))
+	INT_SyncInterruptProcess();
+}
+//-----------------------------------------
+
+void INT_SyncInterruptProcess()
+{
+	bool IntFlag_fromLCTU = INT_CheckSyncFromLCTU();
+	bool IntFlag_fromIGTU = INT_CheckSyncFromIGTU();
+	bool IntFlag_toLCTU = INT_CheckSyncToLCTU();
+	bool IntFlag_toIGTU = INT_CheckSyncToIGTU();
+
+	if(CONTROL_State == DS_ConfigReady && (IntFlag_fromLCTU || IntFlag_fromIGTU))
 	{
 		CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_KEI_MEASURE_TIMEOUT];
 		CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
 	}
 
 
-	if(INT_CheckSyncToLCTU() || INT_CheckSyncToIGTU())
+	if((CONTROL_SubState == SS_Measurement) && (IntFlag_toLCTU || IntFlag_toIGTU))
 		CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
 }
 //-----------------------------------------
 
 bool INT_CheckSyncFromLCTU()
 {
-	if(LL_CheckSyncFromLCTU() && DataTable[REG_CHANNEL] == CHANNEL_LCTU)
-		FlagSyncFromLCTU = true;
-	else
-		FlagSyncFromLCTU = false;
-
-	return FlagSyncFromLCTU;
+	FlagSyncFromLCTU = LL_CheckSyncFromLCTU();
+	return (DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? FlagSyncFromLCTU : false;
 }
 //-----------------------------------------
 
 bool INT_CheckSyncFromIGTU()
 {
-	if(LL_CheckSyncFromIGTU() && DataTable[REG_CHANNEL] == CHANNEL_IGTU)
-		FlagSyncFromIGTU = true;
-	else
-		FlagSyncFromIGTU = false;
-
-	return FlagSyncFromIGTU;
+	FlagSyncFromIGTU = LL_CheckSyncFromIGTU();
+	return (DataTable[REG_CHANNEL] == CHANNEL_IGTU) ? FlagSyncFromIGTU : false;
 }
 //-----------------------------------------
 
 bool INT_CheckSyncToLCTU()
 {
-	if(LL_CheckSyncToLCTU() && DataTable[REG_CHANNEL] == CHANNEL_LCTU)
-		FlagSyncToLCTU = true;
-	else
-		FlagSyncToLCTU = false;
-
-	return FlagSyncToLCTU;
+	FlagSyncToLCTU = LL_CheckSyncToLCTU();
+	return (DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? FlagSyncToLCTU : false;
 }
 //-----------------------------------------
 
 bool INT_CheckSyncToIGTU()
 {
-	if(LL_CheckSyncToIGTU() && DataTable[REG_CHANNEL] == CHANNEL_IGTU)
-		FlagSyncToIGTU = true;
-	else
-		FlagSyncToIGTU = false;
-
-	return FlagSyncToIGTU;
+	FlagSyncToIGTU = LL_CheckSyncToIGTU();
+	return (DataTable[REG_CHANNEL] == CHANNEL_IGTU) ? FlagSyncToIGTU : false;
 }
 //-----------------------------------------

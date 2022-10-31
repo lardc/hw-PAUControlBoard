@@ -186,7 +186,7 @@ void CONTROL_LogicProcess()
 				CurrentDividerRatio = DataTable[REG_I_DIV_FACTOR];
 				LL_SetStateCurrentDivider(true);
 			}
-			CONTROL_CommutationDelayCounter = CONTROL_TimeCounter + COMMUTATION_DELAY_MS;
+			CONTROL_CommutationDelayCounter = CONTROL_TimeCounter + DELAY_COMMUTATION;
 			CONTROL_SetDeviceState(DS_InProcess, SS_WaitCommutation);
 			break;
 

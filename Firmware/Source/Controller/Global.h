@@ -20,6 +20,7 @@
 #define ADC_I_CHANNEL							1		// Номер аналогового канала оцифровки тока
 
 //
-#define COMMUTATION_DELAY_MS					10		// Время коммутации
+#define DELAY_COMMUTATION						10		// Время коммутации (мс)
+#define DELAY_KEI_CONFIG						500		// Время конфигурации Keithley (мс)
 
 #endif //  __GLOBAL_H

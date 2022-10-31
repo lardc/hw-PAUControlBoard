@@ -15,8 +15,7 @@
 
 // Definitions
 //
-#define KEI_MSR_PACKAGE_LENGTH			6
-#define KEI_MSR_DATA_LENGTH				4
+#define KEI_MSR_PACKAGE_LENGTH			43
 
 // Variables
 //
@@ -89,8 +88,8 @@ void KEI_SetRange(float Current)
 void KEI_SetADCRate(float Rate)
 {
 	float RoundedRate;
-	char Temp[13] = {'C','U','R','R',':','N','P','L','C',' '};
-	char RateStr[3];
+	char Temp[13] = {};
+	char RateStr[3] = {};
 
 	if(Rate < NPLC_MIN)
 		Rate = NPLC_MIN;
@@ -98,7 +97,18 @@ void KEI_SetADCRate(float Rate)
 		Rate = NPLC_MAX;
 
 	RoundedRate = roundf(Rate * 100) / 100;
-	sprintf(RateStr, "%f", RoundedRate);
+	sprintf(&RateStr[0], "%f", RoundedRate);
+
+	Temp[0] = 'C';
+	Temp[1] = 'U';
+	Temp[2] = 'R';
+	Temp[3] = 'R';
+	Temp[4] = ':';
+	Temp[5] = 'N';
+	Temp[6] = 'P';
+	Temp[7] = 'L';
+	Temp[8] = 'C';
+	Temp[9] = ' ';
 
 	for(int i = 0; i < sizeof(RateStr); i++)
 		Temp[10 + i] = RateStr[i];
@@ -116,7 +126,10 @@ void KEI_TriggerLinkConfig()
 	KEI_SendData("TRIG:ASYN:OUTP SENS", 19);
 	KEI_SendData("TRIG:DEL 0", 10);
 	KEI_SendData("TRIG:SOUR TLINk", 15);
-	KEI_SendData("TRIG:COUN  1", 11);
+	KEI_SendData("ARM:SOUR IMM", 12);
+	KEI_SendData("ARM:COUN 1", 10);
+	KEI_SendData("TRIG:SOUR IMM", 13);
+	KEI_SendData("TRIG:COUN 1", 11);
 
 	// Output trigger link
 	KEI_SendData("TRIG:ASYN:OLIN 2", 16);
@@ -131,6 +144,8 @@ void KEI_SwitchToSyncWaiting()
 	FlagSyncToIGTU = false;
 
 	KEI_SendData("INIT", 4);
+
+	DELAY_MS(10);
 }
 //----------------------------------
 
@@ -139,7 +154,7 @@ float KEI_ReadData()
 	KEI_SendData("SENS:DATA?", 10);
 	DELAY_MS(KEI_RECEIVE_TIME);
 
-	if(KEI_RXcount == KEI_MSR_PACKAGE_LENGTH)
+	if(KEI_RXcount >= KEI_MSR_PACKAGE_LENGTH)
 		return KEI_ExtractData();
 	else
 	{
@@ -189,13 +204,34 @@ void KEI_ReceiveData(USART_TypeDef* USARTx)
 
 float KEI_ExtractData()
 {
-	char Data[KEI_MSR_DATA_LENGTH];
+	char Mantissa[KEI_MSR_PACKAGE_LENGTH] = {};
+	char Exponenta[KEI_MSR_PACKAGE_LENGTH] = {};
+	Int16U ExpStartAddress = 0;
+	float M, E;
 
 	KEI_RXcount = 0;
 
-	for(int i = 0; i < KEI_MSR_DATA_LENGTH; i++)
-		Data[i] = KEI_Fifo[i];
+	for(int i = 0; i < KEI_MSR_PACKAGE_LENGTH; i++)
+	{
+		if(!ExpStartAddress)
+		{
+			if(KEI_Fifo[i] == 'E')
+				ExpStartAddress = i + 1;
+			else
+				Mantissa[i] = KEI_Fifo[i];
+		}
+		else
+		{
+			if(KEI_Fifo[i] == 'A')
+				break;
+			else
+				Exponenta[i - ExpStartAddress] = KEI_Fifo[i];
+		}
+	}
 
-	return atoff(&Data[0]);
+	M = atoff(&Mantissa[0]);
+	E = atoff(&Exponenta[0]);
+
+	return (M * powf(10, E) * 1000);
 }
 //----------------------------------

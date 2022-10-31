@@ -21,12 +21,12 @@
 #define NPLC_MIN						0.01
 #define NPLC_MAX						5
 #define NPLC_DEF						1
-#define PLC_TIME						20						// in ms
+#define PLC_TIME						67						// in ms
 #define PLC_TIME_OFFSET					PLC_TIME * 0.1
 
 //
-#define KEI_FIFO_LENGTH					20
-#define KEI_RECEIVE_TIME				2						// in ms
+#define KEI_FIFO_LENGTH					100
+#define KEI_RECEIVE_TIME				25						// in ms
 #define KEI_CURRENT_MAX					20						// in mA
 
 // Functions prototypes
