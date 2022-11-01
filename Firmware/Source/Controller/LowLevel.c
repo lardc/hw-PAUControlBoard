@@ -66,6 +66,8 @@ void LL_SwitchMuxToDefault()
 
 void LL_SwitchSyncToIGTU()
 {
+	GPIO_SetState(GPIO_LCTU_SEL, true);
+	GPIO_SetState(GPIO_IGTU_SI, true);
 	GPIO_SetState(GPIO_IGTU_SEL, false);
 	GPIO_SetState(GPIO_LCTU_SI, false);
 }
@@ -73,6 +75,8 @@ void LL_SwitchSyncToIGTU()
 
 void LL_SwitchSyncToLCTU()
 {
+	GPIO_SetState(GPIO_IGTU_SEL, true);
+	GPIO_SetState(GPIO_LCTU_SI, true);
 	GPIO_SetState(GPIO_LCTU_SEL, false);
 	GPIO_SetState(GPIO_IGTU_SI, false);
 }
