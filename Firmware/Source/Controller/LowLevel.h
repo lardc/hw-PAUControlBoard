@@ -24,5 +24,6 @@ bool LL_CheckSyncFromLCTU();
 bool LL_CheckSyncFromIGTU();
 bool LL_CheckSyncToLCTU();
 bool LL_CheckSyncToIGTU();
+void LL_ToggleExtLED();
 
 #endif //__LOWLEVEL_H

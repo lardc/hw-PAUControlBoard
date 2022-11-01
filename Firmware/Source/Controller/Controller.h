@@ -60,5 +60,6 @@ void CONTROL_SwitchToFault(Int16U Reason);
 void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
 void CONTROL_SetDeviceSubState(DeviceSubState NewSubState);
 void CONTROL_HardwareDefaultState();
+void CONTROL_HandleExternalLamp();
 
 #endif // __CONTROLLER_H

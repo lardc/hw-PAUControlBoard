@@ -13,6 +13,7 @@
 // Временные параметры
 #define TIME_LED_BLINK							500		// Мигание светодиодом (в мс)
 #define TIME_FAULT_LED_BLINK					250		// Мигание светодиодом в состоянии Fault
+#define TIME_EXT_LAMP_ON_STATE					50		// Время загорания внешнего индикатора
 
 // Параметры оцифровки
 #define ADC_REF_VOLTAGE							3300.0f	// Опорное напряжение (в В)

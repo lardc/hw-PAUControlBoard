@@ -66,6 +66,8 @@ void TIM7_IRQHandler()
 			LED_BlinkTimeCounter = 0;
 		}
 
+		CONTROL_HandleExternalLamp();
+
 		TIM_StatusClear(TIM7);
 	}
 }

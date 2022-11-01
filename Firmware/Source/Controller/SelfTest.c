@@ -36,7 +36,6 @@ void SELFTEST_Process()
 		LL_SwitchSyncToLCTU();
 		LL_SwitchMuxToDefault();
 		LL_SetStateSelfTestCurrent(true);
-		LL_SetStateExtLED(true);
 
 		DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
 		DelayCounter = CONTROL_TimeCounter + DELAY_KEI_CONFIG;

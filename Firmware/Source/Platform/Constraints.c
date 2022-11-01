@@ -18,7 +18,7 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{I_DIV_FACTOR_MIN, I_DIV_FACTOR_MAX, I_DIV_FACTOR_DEF},						// 7
 		{SYNC_WAIT_TIMEOUT_MIN, SYNC_WAIT_TIMEOUT_MAX, SYNC_WAIT_TIMEOUT_DEF},		// 8
 		{KEI_MEASURE_TIMEOUT_MIN, KEI_MEASURE_TIMEOUT_MAX, KEI_MEASURE_TIMEOUT_DEF},// 9
-		{0, 0, 0},																	// 10
+		{NO, YES, YES},																// 10
 		{0, 0, 0},																	// 11
 		{0, 0, 0},																	// 12
 		{0, 0, 0},																	// 13

@@ -198,9 +198,10 @@ void CONTROL_LogicProcess()
 			break;
 
 		case SS_ConfigSync:
+			(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchSyncToLCTU() : LL_SwitchSyncToIGTU();
+
 			if(!CONTROL_SoftwareStartMeasure)
 			{
-				(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchSyncToLCTU() : LL_SwitchSyncToIGTU();
 				KEI_SwitchToSyncWaiting();
 				CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
 				CONTROL_SetDeviceState(DS_ConfigReady, SS_None);
@@ -247,11 +248,41 @@ void CONTROL_LogicProcess()
 
 void CONTROL_HardwareDefaultState()
 {
-	LL_SetStateExtLED(false);
 	LL_SetStateCurrentDivider(false);
 	LL_SetStateSelfTestCurrent(false);
 	LL_SwitchMuxToDefault();
 	LL_SwitchSyncOff();
+}
+//-----------------------------------------------
+
+void CONTROL_HandleExternalLamp()
+{
+	static Int64U ExternalLampCounter = 0;
+
+	if(DataTable[REG_LAMP_CTRL])
+	{
+		if(CONTROL_State == DS_Fault)
+		{
+			if(++ExternalLampCounter > TIME_FAULT_LED_BLINK)
+			{
+				LL_ToggleExtLED();
+				ExternalLampCounter = 0;
+			}
+		}
+		else
+			{
+				if(CONTROL_State == DS_ConfigReady || CONTROL_State == DS_InProcess)
+				{
+					LL_SetStateExtLED(true);
+					ExternalLampCounter = CONTROL_TimeCounter + TIME_EXT_LAMP_ON_STATE;
+				}
+				else
+				{
+					if(CONTROL_TimeCounter >= ExternalLampCounter)
+						LL_SetStateExtLED(false);
+				}
+			}
+	}
 }
 //-----------------------------------------------
 

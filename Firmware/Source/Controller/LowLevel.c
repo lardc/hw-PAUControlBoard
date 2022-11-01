@@ -20,6 +20,12 @@ void LL_SetStateExtLED(bool State)
 }
 //-----------------------------
 
+void LL_ToggleExtLED()
+{
+	GPIO_Toggle(GPIO_LED_EXT);
+}
+//-----------------------------
+
 void LL_SetStateSelfTestCurrent(bool State)
 {
 	GPIO_SetState(GPIO_STST_CURRENT, State);

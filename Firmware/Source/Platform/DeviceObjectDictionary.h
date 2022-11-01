@@ -44,6 +44,7 @@
 #define REG_I_DIV_FACTOR				7	// Коэффициент деления делителя тока
 #define REG_SYNC_WAIT_TIMEOUT			8	// Таймаут нахождения блока в состоянии DS_ConfigReady (мс)
 #define REG_KEI_MEASURE_TIMEOUT			9	// Таймаут измерения тока Keithley 6485 (мс)
+#define REG_LAMP_CTRL					10	// Регистр запрета работы внешнего индикатора (0 - запрещено, 1 - разрешено)
 
 
 // Несохраняемы регистры чтения-записи
