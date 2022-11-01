@@ -34,12 +34,16 @@ void LL_SelfTestChannel_IGTU(bool State)
 
 void LL_SwitchMuxToIGTU()
 {
+	GPIO_SetState(GPIO_LCTU_MUX, false);
+	DELAY_MS(DELAY_COMMUTATION);
 	GPIO_SetState(GPIO_IGTU_MUX, true);
 }
 //-----------------------------
 
 void LL_SwitchMuxToLCTU()
 {
+	GPIO_SetState(GPIO_IGTU_MUX, false);
+	DELAY_MS(DELAY_COMMUTATION);
 	GPIO_SetState(GPIO_LCTU_MUX, true);
 }
 //-----------------------------
