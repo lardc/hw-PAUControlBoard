@@ -217,8 +217,10 @@ void CONTROL_LogicProcess()
 			}
 			else
 			{
-				LL_GenerateSyncToKeithley();
-				CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
+				float KEI_Data;
+
+				KEI_Measure(&KEI_Data);
+					CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
 			}
 			break;
 
