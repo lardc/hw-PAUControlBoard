@@ -33,13 +33,14 @@
 // Регистры
 // Сохраняемые регистры
 #define REG_SFTST_R_SHUNT				0	// Сопротивление шунта системы самодиагностики (Ом)
-#define REG_SFTST_I_ALOWED_ERR			1	// Допустимая ошибка измеренного значения тока (%)
-#define REG_SFTST_KEI_I_MUX_OFF			2	// Эталонное значение тока с отключенным MUX (мА)
-#define REG_SFTST_KEI_I_MUX_IGTU		3	// Эталонное значение тока при MUX в положении IGTU (мА)
-#define REG_SFTST_KEI_I_MUX_LCTU		4	// Эталонное значение тока при MUX в положении LCTU без делителя (мА)
-#define REG_SFTST_KEI_I_MUX_LCTU_DIV	5	// Эталонное значение тока при MUX в положении LCTU с делителем (мА)
-#define REG_SFTST_R_KEI					6	//	Сопротивление в цепи измерения тока Keithley (Ом)
+#define REG_SFTST_R_KEI					1	// Сопротивление в цепи измерения тока Keithley (Ом)
+#define REG_SFTST_MUX_OFF_THRE			2	// Пороговое значение тока с отключенным MUX (мА)
+#define REG_SFTST_MUX_IGTU_THRE			3	// Пороговое значение тока при MUX в положении IGTU (мА)
+#define REG_SFTST_MUX_LCTU_THRE			4	// Пороговое значение тока при MUX в положении LCTU без делителя (мА)
+#define REG_SFTST_MUX_LCTU_DIV_THRE		5	// Пороговое значение тока при MUX в положении LCTU с делителем (мА)
+
 //
+#define REG_SFTST_I_ALOWED_ERR			6	// Допустимая ошибка измерения тока самотестирования (%)
 #define REG_I_DIV_FACTOR				7	// Коэффициент деления делителя тока
 #define REG_SYNC_WAIT_TIMEOUT			8	// Таймаут нахождения блока в состоянии DS_ConfigReady (мс)
 #define REG_KEI_MEASURE_TIMEOUT			9	// Таймаут измерения тока Keithley 6485 (мс)
@@ -79,8 +80,8 @@
 
 //  Fault and disable codes
 #define DF_NONE							0	// No fault
-#define DF_ST_KEI_LINE_OPEN				1	// Selftest - Test current generation fault (Keithley line open)
-#define DF_ST_KEI_LINE_SHORT			2	// Selftest - Short circuit in the Keithley line
+#define DF_ST_KEI_WRONG_DATA			1	// Measured current differs from expected
+#define DF_ST_KEI_LINE_OPEN				2	// Selftest - Test current generation fault (Keithley line open)
 #define DF_ST_MUX_IGTU					3	// Selftest - IGTU MUX has a problem
 #define DF_ST_MUX_LCTU					4	// Selftest - LCTU MUX has a problem
 #define DF_ST_DIVIDER					5	// Selftest - Current divider has a problem
