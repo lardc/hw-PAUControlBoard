@@ -122,17 +122,15 @@ void KEI_SetADCRate(float Rate)
 void KEI_TriggerLinkConfig()
 {
 	// Input trigger link
-	KEI_SendData("TRIG:ASYN:ILIN 1", 16);
-	KEI_SendData("TRIG:ASYN:OUTP SENS", 19);
 	KEI_SendData("TRIG:DEL 0", 10);
 	KEI_SendData("TRIG:SOUR TLINk", 15);
-	KEI_SendData("ARM:SOUR IMM", 12);
-	KEI_SendData("ARM:COUN 1", 10);
-	KEI_SendData("TRIG:SOUR IMM", 13);
 	KEI_SendData("TRIG:COUN 1", 11);
+	KEI_SendData("TRIG:ASYN:ILIN 1", 16);
 
 	// Output trigger link
 	KEI_SendData("TRIG:ASYN:OLIN 2", 16);
+	KEI_SendData("TRIG:ASYN:OUTP SENS", 19);
+	KEI_SendData("TRIG:SOUR TLIN", 14);
 }
 //----------------------------------
 
@@ -193,6 +191,8 @@ void KEI_SendData(char* Data, Int16U Bytes)
 
 	LL_SendByteToKeithley(0x0D);
 	LL_SendByteToKeithley(0x0A);
+
+	DELAY_MS(1);
 }
 //----------------------------------
 
