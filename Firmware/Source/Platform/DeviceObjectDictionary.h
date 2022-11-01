@@ -87,9 +87,8 @@
 #define DF_ST_MUX_LCTU					4	// Selftest - LCTU MUX has a problem
 #define DF_ST_DIVIDER					5	// Selftest - Current divider has a problem
 //
-#define DF_MEASURE_TIMEOUT				6	// Measurement timeout
-#define DF_KEI_INTERFACE_TIMEOUT		7	// Timeout receiving data from Keithley 6485
-#define DF_KEI_SYNC_TIMEOUT				8	// Timeout receiving sync from Keithley 6485
+#define DF_KEI_INTERFACE_TIMEOUT		6	// Timeout receiving data from Keithley 6485
+#define DF_KEI_SYNC_TIMEOUT				7	// Timeout receiving sync from Keithley 6485
 
 // Problem
 #define PROBLEM_NONE					0

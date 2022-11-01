@@ -214,7 +214,7 @@ void CONTROL_LogicProcess()
 			if(!CONTROL_SoftwareStartMeasure)
 			{
 				if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
-					CONTROL_SwitchToFault(DF_MEASURE_TIMEOUT);
+					CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
 			}
 			else
 			{
