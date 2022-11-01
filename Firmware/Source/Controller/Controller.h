@@ -30,8 +30,9 @@ typedef enum __DeviceSubState
 	SS_SaveResults,
 	//
 	ST_Prepare = 10,
+	ST_WaitingConfig,
 	ST_CurrentCheck,
-	ST_Interface,
+	ST_Keithley,
 	ST_Measure,
 	ST_IGTU_ChannelCheck,
 	ST_LCTU_ChannelCheck,

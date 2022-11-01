@@ -12,28 +12,21 @@
 #include "Keithley6485.h"
 #include "math.h"
 
-// Definitions
-//
-
-//
 
 // Variables
 //
-Int64U CommutationDelayCounter = 0;
-float RequiredTestCurrent = 0;
+Int64U DelayCounter = 0;
 
 
 // Functions prototypes
 //
 bool SELFTEST_TestCurrentCheck();
 void SELFTEST_StopProcess();
-void SELFTEST_FaultMUX(Int16U MUXState);
 
 // Functions
 //
 void SELFTEST_Process()
 {
-	static Int16U SelfTestSwitch = 0;
 	float KEI_Data = 0;
 
 	switch(CONTROL_SubState)
@@ -43,72 +36,46 @@ void SELFTEST_Process()
 		LL_SwitchSyncToLCTU();
 		LL_SwitchMuxToDefault();
 		LL_SetStateSelfTestCurrent(true);
+		LL_SetStateExtLED(true);
 
-		RequiredTestCurrent = DataTable[REG_SFTST_KEI_I_MUX_OFF];
 		DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
-		CommutationDelayCounter = CONTROL_TimeCounter + DELAY_KEI_CONFIG;
+		DelayCounter = CONTROL_TimeCounter + DELAY_KEI_CONFIG;
 
-		CONTROL_SetDeviceSubState(ST_CurrentCheck);
+		CONTROL_SetDeviceSubState(ST_WaitingConfig);
 		break;
 
-	case ST_CurrentCheck:
-		if(CONTROL_TimeCounter >= CommutationDelayCounter)
-			{
-			if(SELFTEST_TestCurrentCheck())
-				CONTROL_SetDeviceSubState(ST_Interface);
-			else
-			{
-				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
-				CONTROL_SwitchToFault(DF_ST_KEI_LINE_OPEN);
-			}
+	case ST_WaitingConfig:
+		if(CONTROL_TimeCounter >= DelayCounter)
+		{
+			DelayCounter = 0;
+			CONTROL_SetDeviceSubState(ST_CurrentCheck);
 		}
 		break;
 
-	case ST_Interface:
-		if(KEI_ReadData(&KEI_Data))
-			CONTROL_SetDeviceSubState(ST_Measure);
+	case ST_CurrentCheck:
+		if(SELFTEST_TestCurrentCheck())
+		{
+			DelayCounter = CONTROL_TimeCounter + DELAY_KEI_CONFIG;
+			CONTROL_SetDeviceSubState(ST_Keithley);
+		}
+		else
+		{
+			DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
+			CONTROL_SwitchToFault(DF_ST_KEI_LINE_OPEN);
+		}
 		break;
 
-	case ST_Measure:
-		if(CONTROL_TimeCounter >= CommutationDelayCounter)
+	case ST_Keithley:
+		if(KEI_Measure(&KEI_Data))
 		{
-			if(KEI_Measure(&KEI_Data))
+			DelayCounter = 0;
+
+			if(KEI_Data >= DataTable[REG_SFTST_MUX_OFF_THRE])
+				CONTROL_SetDeviceSubState(ST_IGTU_ChannelCheck);
+			else
 			{
-				float Error = fabs((KEI_Data - RequiredTestCurrent) / RequiredTestCurrent * 100);
-
-				if(Error <= DataTable[REG_SFTST_I_ALOWED_ERR])
-				{
-					switch(SelfTestSwitch)
-					{
-					case 0:
-						SelfTestSwitch++;
-						CONTROL_SetDeviceSubState(ST_IGTU_ChannelCheck);
-						break;
-
-					case 1:
-						SelfTestSwitch++;
-						LL_SelfTestChannel_IGTU(false);
-						CONTROL_SetDeviceSubState(ST_LCTU_ChannelCheck);
-						break;
-
-					case 2:
-						SelfTestSwitch++;
-						CONTROL_SetDeviceSubState(ST_CurrentDeviderCheck);
-						break;
-
-					case 3:
-						SELFTEST_StopProcess();
-						SelfTestSwitch = 0;
-						DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_OK;
-						CONTROL_SetDeviceState(DS_Ready, SS_None);
-						break;
-					}
-				}
-				else
-				{
-					SELFTEST_FaultMUX(SelfTestSwitch);
-					SelfTestSwitch = 0;
-				}
+				DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
+				CONTROL_SwitchToFault(DF_ST_KEI_WRONG_DATA);
 			}
 		}
 		break;
@@ -117,52 +84,71 @@ void SELFTEST_Process()
 		LL_SwitchSyncToIGTU();
 		LL_SwitchMuxToIGTU();
 		LL_SelfTestChannel_IGTU(true);
-		RequiredTestCurrent = DataTable[REG_SFTST_KEI_I_MUX_IGTU];
-		CommutationDelayCounter = CONTROL_TimeCounter + DELAY_COMMUTATION;
-		CONTROL_SetDeviceSubState(ST_Measure);
+
+		if(!DelayCounter)
+			DelayCounter = CONTROL_TimeCounter + DELAY_COMMUTATION;
+
+		if(CONTROL_TimeCounter >= DelayCounter)
+		{
+			if(KEI_Measure(&KEI_Data))
+			{
+				DelayCounter = 0;
+
+				if(KEI_Data >= DataTable[REG_SFTST_MUX_IGTU_THRE])
+					CONTROL_SwitchToFault(DF_ST_MUX_IGTU);
+				else
+					CONTROL_SetDeviceSubState(ST_LCTU_ChannelCheck);
+			}
+		}
 		break;
 
 	case ST_LCTU_ChannelCheck:
 		LL_SwitchSyncToLCTU();
 		LL_SwitchMuxToLCTU();
-		RequiredTestCurrent = DataTable[REG_SFTST_KEI_I_MUX_LCTU];
-		CommutationDelayCounter = CONTROL_TimeCounter + DELAY_COMMUTATION;
-		CONTROL_SetDeviceSubState(ST_Measure);
+
+		if(!DelayCounter)
+			DelayCounter = CONTROL_TimeCounter + DELAY_COMMUTATION;
+
+		if(CONTROL_TimeCounter >= DelayCounter)
+		{
+			if(KEI_Measure(&KEI_Data))
+			{
+				DelayCounter = 0;
+
+				if(KEI_Data >= DataTable[REG_SFTST_MUX_LCTU_THRE])
+					CONTROL_SwitchToFault(DF_ST_MUX_LCTU);
+				else
+					CONTROL_SetDeviceSubState(ST_CurrentDeviderCheck);
+			}
+		}
 		break;
 
 	case ST_CurrentDeviderCheck:
 		LL_SetStateCurrentDivider(true);
-		RequiredTestCurrent = DataTable[REG_SFTST_KEI_I_MUX_LCTU_DIV];
-		CommutationDelayCounter = CONTROL_TimeCounter + DELAY_COMMUTATION;
-		CONTROL_SetDeviceSubState(ST_Measure);
+
+		if(!DelayCounter)
+			DelayCounter = CONTROL_TimeCounter + DELAY_COMMUTATION;
+
+		if(CONTROL_TimeCounter >= DelayCounter)
+		{
+			if(KEI_Measure(&KEI_Data))
+			{
+				DelayCounter = 0;
+
+				if(KEI_Data >= DataTable[REG_SFTST_MUX_LCTU_DIV_THRE])
+					CONTROL_SwitchToFault(DF_ST_DIVIDER);
+				else
+				{
+					SELFTEST_StopProcess();
+
+					DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_OK;
+					CONTROL_SetDeviceState(DS_Ready, SS_None);
+				}
+			}
+		}
 		break;
 
 	default:
-		break;
-	}
-}
-//-------------------------
-
-void SELFTEST_FaultMUX(Int16U MUXState)
-{
-	DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_FAIL;
-
-	switch(MUXState)
-	{
-	case 0:
-		CONTROL_SwitchToFault(DF_ST_KEI_LINE_SHORT);
-		break;
-
-	case 1:
-		CONTROL_SwitchToFault(DF_ST_MUX_IGTU);
-		break;
-
-	case 2:
-		CONTROL_SwitchToFault(DF_ST_MUX_LCTU);
-		break;
-
-	case 3:
-		CONTROL_SwitchToFault(DF_ST_DIVIDER);
 		break;
 	}
 }
