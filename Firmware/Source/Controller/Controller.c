@@ -293,6 +293,7 @@ void CONTROL_ResetOutputRegisters()
 	DataTable[REG_WARNING] = WARNING_NONE;
 	DataTable[REG_PROBLEM] = PROBLEM_NONE;
 	DataTable[REG_OP_RESULT] = OPRESULT_NONE;
+	DataTable[REG_RESULT_CURRENT] = 0;
 	//
 	DEVPROFILE_ResetScopes(0);
 	DEVPROFILE_ResetEPReadState();
