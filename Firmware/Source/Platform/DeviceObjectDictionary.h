@@ -2,8 +2,6 @@
 #define __DEV_OBJ_DIC_H
 
 // Команды
-#define ACT_ENABLE_POWER				1	// Включение блока
-#define ACT_DISABLE_POWER				2	// Выключение блока
 #define ACT_CLR_FAULT					3	// Очистка всех fault
 #define ACT_CLR_WARNING					4	// Очистка всех warning
 //

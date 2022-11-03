@@ -68,6 +68,8 @@ void CONTROL_Init()
 	// Сброс значений
 	DEVPROFILE_ResetControlSection();
 	CONTROL_ResetToDefaultState();
+
+	CONTROL_SetDeviceState(DS_InProcess, ST_PowerUpWaiting);
 }
 //------------------------------------------
 
@@ -76,8 +78,6 @@ void CONTROL_ResetToDefaultState()
 	CONTROL_ResetOutputRegisters();
 	CONTROL_HardwareDefaultState();
 	KEI_ResetRxConuter();
-
-	CONTROL_SetDeviceState(DS_None, SS_None);
 }
 //------------------------------------------
 
@@ -96,24 +96,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 	
 	switch (ActionID)
 	{
-		case ACT_ENABLE_POWER:
-			if(CONTROL_State == DS_None)
-				CONTROL_SetDeviceState(DS_InProcess, ST_Prepare);
-			else if(CONTROL_State != DS_Ready)
-				*pUserError = ERR_OPERATION_BLOCKED;
-			break;
-
-		case ACT_DISABLE_POWER:
-			if(CONTROL_State == DS_Ready)
-				CONTROL_ResetToDefaultState();
-			else if(CONTROL_State != DS_None)
-					*pUserError = ERR_OPERATION_BLOCKED;
-			break;
-
 		case ACT_CLR_FAULT:
 			if (CONTROL_State == DS_Fault)
 			{
-				CONTROL_SetDeviceState(DS_None, SS_None);
+				CONTROL_SetDeviceState(DS_InProcess, ST_PowerUpWaiting);
 				DataTable[REG_FAULT_REASON] = DF_NONE;
 			}
 			break;
@@ -123,7 +109,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			break;
 
 		case ACT_RUN_SELF_TEST:
-			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_Ready)
 				CONTROL_SetDeviceState(DS_InProcess, ST_Prepare);
 			else
 				*pUserError = ERR_OPERATION_BLOCKED;

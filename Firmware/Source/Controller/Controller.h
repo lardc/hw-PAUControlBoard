@@ -29,7 +29,8 @@ typedef enum __DeviceSubState
 	SS_Measurement,
 	SS_SaveResults,
 	//
-	ST_Prepare = 10,
+	ST_PowerUpWaiting = 10,
+	ST_Prepare,
 	ST_WaitingConfig,
 	ST_CurrentCheck,
 	ST_Keithley,

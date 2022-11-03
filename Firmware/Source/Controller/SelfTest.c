@@ -31,6 +31,14 @@ void SELFTEST_Process()
 
 	switch(CONTROL_SubState)
 	{
+	case ST_PowerUpWaiting:
+		if(!DelayCounter)
+			DelayCounter = CONTROL_TimeCounter + DELAY_POWER_UP;
+		else
+			if(CONTROL_TimeCounter >= DelayCounter)
+				CONTROL_SetDeviceSubState(ST_Prepare);
+		break;
+
 	case ST_Prepare:
 		KEI_Config();
 		LL_SwitchSyncToLCTU();
