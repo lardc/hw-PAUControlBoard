@@ -23,6 +23,6 @@
 //
 #define DELAY_COMMUTATION						10		// Время коммутации (мс)
 #define DELAY_KEI_CONFIG						500		// Время конфигурации Keithley (мс)
-#define DELAY_POWER_UP							500		// Время необходимое для полного запуска Keithley 6485 (мс)
+#define DELAY_POWER_UP							1000	// Время необходимое для полного запуска Keithley 6485 (мс)
 
 #endif //  __GLOBAL_H
