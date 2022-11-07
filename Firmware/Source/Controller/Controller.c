@@ -206,7 +206,7 @@ void CONTROL_LogicProcess()
 			{
 				float KEI_Data;
 
-				KEI_Measure(&KEI_Data);
+				if(KEI_Measure(&KEI_Data))
 					CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
 			}
 			break;
@@ -214,7 +214,6 @@ void CONTROL_LogicProcess()
 		case SS_SaveResults:
 			CONTROL_SaveTestResult();
 			CONTROL_HardwareDefaultState();
-			CONTROL_SetDeviceState(DS_Ready, SS_None);
 			break;
 
 		default:
@@ -294,6 +293,8 @@ void CONTROL_SaveTestResult()
 	{
 		DataTable[REG_RESULT_CURRENT] = KEI_Data * CurrentDividerRatio;
 		DataTable[REG_OP_RESULT] = OPRESULT_OK;
+
+		CONTROL_SetDeviceState(DS_Ready, SS_None);
 	}
 }
 //-----------------------------------------------
