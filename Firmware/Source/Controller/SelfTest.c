@@ -125,12 +125,12 @@ void SELFTEST_Process()
 				if(KEI_Data >= DataTable[REG_SFTST_MUX_LCTU_THRE])
 					CONTROL_SwitchToFault(DF_ST_MUX_LCTU);
 				else
-					CONTROL_SetDeviceSubState(ST_CurrentDeviderCheck);
+					CONTROL_SetDeviceSubState(ST_CurrentDividerCheck);
 			}
 		}
 		break;
 
-	case ST_CurrentDeviderCheck:
+	case ST_CurrentDividerCheck:
 		LL_SetStateCurrentDivider(true);
 
 		if(!DelayCounter)

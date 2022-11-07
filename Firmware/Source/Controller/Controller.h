@@ -23,7 +23,7 @@ typedef enum __DeviceSubState
 	SS_None = 0,
 	SS_ConfigMUX,
 	SS_ConfigKeithley,
-	SS_ConfigDevider,
+	SS_ConfigDivider,
 	SS_WaitCommutation,
 	SS_ConfigSync,
 	SS_Measurement,
@@ -37,7 +37,7 @@ typedef enum __DeviceSubState
 	ST_Measure,
 	ST_IGTU_ChannelCheck,
 	ST_LCTU_ChannelCheck,
-	ST_CurrentDeviderCheck
+	ST_CurrentDividerCheck
 } DeviceSubState;
 
 // Variables

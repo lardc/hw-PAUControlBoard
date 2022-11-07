@@ -163,10 +163,10 @@ void CONTROL_LogicProcess()
 
 		case SS_ConfigMUX:
 			(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchMuxToLCTU() : LL_SwitchMuxToIGTU();
-			CONTROL_SetDeviceState(DS_InProcess, SS_ConfigDevider);
+			CONTROL_SetDeviceState(DS_InProcess, SS_ConfigDivider);
 			break;
 
-		case SS_ConfigDevider:
+		case SS_ConfigDivider:
 			CurrentDividerRatio = 1;
 
 			if(DataTable[REG_CHANNEL] == CHANNEL_LCTU && DataTable[REG_RANGE] > KEI_CURRENT_MAX)
