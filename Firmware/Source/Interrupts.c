@@ -12,7 +12,6 @@ bool FlagSyncFromIGTU = false;
 bool FlagSyncToLCTU = false;
 bool FlagSyncToIGTU = false;
 
-
 // Functions prototypes
 //
 bool INT_CheckSyncFromLCTU();
@@ -20,7 +19,6 @@ bool INT_CheckSyncFromIGTU();
 bool INT_CheckSyncToLCTU();
 bool INT_CheckSyncToIGTU();
 void INT_SyncInterruptProcess();
-
 
 // Functions
 //
@@ -38,7 +36,7 @@ void USART2_IRQHandler()
 {
 	if(ZwSCI_RecieveCheck(USART2))
 		KEI_ReceiveData(USART2);
-
+	
 	ZwSCI_RecieveFlagClear(USART2);
 }
 //-----------------------------------------
@@ -56,7 +54,7 @@ void USB_LP_CAN_RX0_IRQHandler()
 void TIM7_IRQHandler()
 {
 	static uint16_t LED_BlinkTimeCounter = 0;
-
+	
 	if(TIM_StatusCheck(TIM7))
 	{
 		CONTROL_TimeCounter++;
@@ -65,9 +63,9 @@ void TIM7_IRQHandler()
 			LL_ToggleBoardLED();
 			LED_BlinkTimeCounter = 0;
 		}
-
+		
 		CONTROL_HandleExternalLamp();
-
+		
 		TIM_StatusClear(TIM7);
 	}
 }
@@ -91,14 +89,13 @@ void INT_SyncInterruptProcess()
 	bool IntFlag_fromIGTU = INT_CheckSyncFromIGTU();
 	bool IntFlag_toLCTU = INT_CheckSyncToLCTU();
 	bool IntFlag_toIGTU = INT_CheckSyncToIGTU();
-
+	
 	if(CONTROL_State == DS_ConfigReady && (IntFlag_fromLCTU || IntFlag_fromIGTU))
 	{
 		CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_KEI_MEASURE_TIMEOUT];
 		CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
 	}
-
-
+	
 	if((CONTROL_SubState == SS_Measurement) && (IntFlag_toLCTU || IntFlag_toIGTU))
 		CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
 }

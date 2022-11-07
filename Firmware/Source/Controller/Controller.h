@@ -51,7 +51,6 @@ extern Int64U CONTROL_TimeoutCounter;
 extern Int16U MEMBUF_Values_Write[VALUES_x_SIZE];
 extern Int16U MEMBUF_ValuesWrite_Counter;
 
-
 // Functions
 //
 void CONTROL_Init();

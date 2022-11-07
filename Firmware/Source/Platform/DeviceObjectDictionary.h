@@ -44,14 +44,12 @@
 #define REG_KEI_MEASURE_TIMEOUT			9	// Таймаут измерения тока Keithley 6485 (мс)
 #define REG_LAMP_CTRL					10	// Регистр запрета работы внешнего индикатора (0 - запрещено, 1 - разрешено)
 
-
 // Несохраняемы регистры чтения-записи
 #define REG_CHANNEL						128	// 0 - канал не выбран, 1 - LCTU, 2 - IGTU
 #define REG_RANGE						129	// Выбор дипазона измерения тока (mA)
 #define REG_MEASUREMENT_TIME			130	// Время преобразования (мс)
 //
 #define REG_DBG							150	// Отладочный регистр
-
 
 // Регистры только чтение
 #define REG_DEV_STATE					192	// Регистр состояния
@@ -70,7 +68,6 @@
 // 258 - 259
 #define REG_FWINFO_STR_LEN				260	// Length of the information string record
 #define REG_FWINFO_STR_BEGIN			261	// Begining of the information string record
-
 
 // Operation results
 #define OPRESULT_NONE					0	// No information or not finished

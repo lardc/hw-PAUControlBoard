@@ -31,8 +31,7 @@ void INITCFG_ConfigIO()
 	GPIO_InitOpenDrainOutput(GPIO_LCTU_SEL, NoPull);
 	GPIO_InitOpenDrainOutput(GPIO_IGTU_SI, NoPull);
 	GPIO_InitOpenDrainOutput(GPIO_LCTU_SI, NoPull);
-
-
+	
 	// Начальная установка состояний выводов
 	GPIO_SetState(GPIO_LED, false);
 	GPIO_SetState(GPIO_LED_EXT, false);
@@ -45,7 +44,7 @@ void INITCFG_ConfigIO()
 	GPIO_SetState(GPIO_LCTU_MUX, false);
 	GPIO_SetState(GPIO_LCTU_SI, true);
 	GPIO_SetState(GPIO_IDIV2, false);
-
+	
 	// Альтернативные функции
 	GPIO_InitAltFunction(GPIO_ALT_UART1_RX, AltFn_7);
 	GPIO_InitAltFunction(GPIO_ALT_UART1_TX, AltFn_7);
@@ -79,7 +78,7 @@ void INITCFG_ConfigUART()
 {
 	USART_Init(USART1, SYSCLK, USART_BAUDRATE);
 	USART_Recieve_Interupt(USART1, 0, true);
-
+	
 	USART_Init(USART2, SYSCLK, KEITHLEY_RS232_BAUDRATE);
 	USART_Recieve_Interupt(USART2, 0, true);
 }
@@ -97,7 +96,7 @@ void INITCFG_ConfigTimer7()
 void INITCFG_ConfigADC()
 {
 	RCC_ADC_Clk_EN(ADC_12_ClkEN);
-
+	
 	// ADC1
 	ADC_Calibration(ADC1);
 	ADC_SoftTrigConfig(ADC1);

@@ -37,7 +37,7 @@ Int16U FWINF_Compose(pInt16U DataTable, Int16U MaxLength)
 	// Align counter to even
 	if(counter % 2 && counter < MaxLength)
 		FWINF_AppendSymbol(DataTable, ' ', counter++);
-
+	
 	return counter;
 }
 // ----------------------------------------
