@@ -103,28 +103,28 @@ void INT_SyncInterruptProcess()
 
 bool INT_CheckSyncFromLCTU()
 {
-	FlagSyncFromLCTU = LL_CheckSyncFromLCTU();
+	FlagSyncFromLCTU |= LL_CheckSyncFromLCTU();
 	return (DataTable[REG_CHANNEL] == CHANNEL_LCTU) && FlagSyncFromLCTU;
 }
 //-----------------------------------------
 
 bool INT_CheckSyncFromIGTU()
 {
-	FlagSyncFromIGTU = LL_CheckSyncFromIGTU();
+	FlagSyncFromIGTU |= LL_CheckSyncFromIGTU();
 	return (DataTable[REG_CHANNEL] == CHANNEL_IGTU) && FlagSyncFromIGTU;
 }
 //-----------------------------------------
 
 bool INT_CheckSyncToLCTU()
 {
-	FlagSyncToLCTU = LL_CheckSyncToLCTU();
+	FlagSyncToLCTU |= LL_CheckSyncToLCTU();
 	return (DataTable[REG_CHANNEL] == CHANNEL_LCTU) && FlagSyncToLCTU;
 }
 //-----------------------------------------
 
 bool INT_CheckSyncToIGTU()
 {
-	FlagSyncToIGTU = LL_CheckSyncToIGTU();
+	FlagSyncToIGTU |= LL_CheckSyncToIGTU();
 	return (DataTable[REG_CHANNEL] == CHANNEL_IGTU) && FlagSyncToIGTU;
 }
 //-----------------------------------------

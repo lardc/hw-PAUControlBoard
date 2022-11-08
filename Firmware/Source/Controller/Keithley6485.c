@@ -170,11 +170,11 @@ bool KEI_Measure(float* Data)
 	
 	TimeCounter = CONTROL_TimeCounter + KEI_ConversionTimeout;
 	
-	while(CONTROL_TimeCounter < TimeCounter && !FlagSyncToLCTU && !FlagSyncToIGTU)
+	while(CONTROL_TimeCounter < TimeCounter)
 	{
 	}
 	
-	if(CONTROL_TimeCounter < TimeCounter)
+	if(FlagSyncToLCTU || FlagSyncToIGTU)
 		return KEI_ReadData(Data);
 	else
 	{
