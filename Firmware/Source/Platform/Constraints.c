@@ -7,18 +7,17 @@
 
 // Constants
 //
-const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
-		{0, 0, 0},																	// 0
-		{0, 0, 0},																	// 1
-		{0, 0, 0},																	// 2
-		{0, 0, 0},																	// 3
-		{0, 0, 0},																	// 4
-		{0, 0, 0},																	// 5
-		{0, 0, 0},																	// 6
-		{0, 0, 0},																	// 7
-		{0, 0, 0},																	// 8
-		{0, 0, 0},																	// 9
-		{0, 0, 0},																	// 10
+const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {{SFTST_R_MIN, SFTST_R_MAX, SFTST_R_DEF},				// 0
+		{SFTST_R_MIN, SFTST_R_MAX, SFTST_R_DEF},									// 1
+		{SFTST_I_MIN, SFTST_I_MAX, SFTST_I_DEF},									// 2
+		{SFTST_I_MIN, SFTST_I_MAX, SFTST_I_DEF},									// 3
+		{SFTST_I_MIN, SFTST_I_MAX, SFTST_I_DEF},									// 4
+		{SFTST_I_MIN, SFTST_I_MAX, SFTST_I_DEF},									// 5
+		{SFTST_I_ALOWED_ERR_MIN, SFTST_I_ALOWED_ERR_MAX, SFTST_I_ALOWED_ERR_DEF},	// 6
+		{I_DIV_FACTOR_MIN, I_DIV_FACTOR_MAX, I_DIV_FACTOR_DEF},						// 7
+		{SYNC_WAIT_TIMEOUT_MIN, SYNC_WAIT_TIMEOUT_MAX, SYNC_WAIT_TIMEOUT_DEF},		// 8
+		{KEI_MEASURE_TIMEOUT_MIN, KEI_MEASURE_TIMEOUT_MAX, KEI_MEASURE_TIMEOUT_DEF},		// 9
+		{NO, YES, YES},																// 10
 		{0, 0, 0},																	// 11
 		{0, 0, 0},																	// 12
 		{0, 0, 0},																	// 13
@@ -136,9 +135,9 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{0, 0, 0},																	// 125
 		{0, 0, 0},																	// 126
 		{0, 0, 0},																	// 127
-		{0, 0, 0},																	// 128
-		{0, 0, 0},																	// 129
-		{0, 0, 0},																	// 130
+		{CHANNEL_LCTU, CHANNEL_IGTU, CHANNEL_LCTU},									// 128
+		{RANGE_MIN, RANGE_MAX, RANGE_DEF},											// 129
+		{MEASUREMENT_TIME_MIN, MEASUREMENT_TIME_MAX, MEASUREMENT_TIME_DEF},			// 130
 		{0, 0, 0},																	// 131
 		{0, 0, 0},																	// 132
 		{0, 0, 0},																	// 133
@@ -158,7 +157,7 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{0, 0, 0},																	// 147
 		{0, 0, 0},																	// 148
 		{0, 0, 0},																	// 149
-		{0, 0, 0},																	// 150
+		{0, INT16U_MAX, 0},															// 150
 		{0, 0, 0},																	// 151
 		{0, 0, 0},																	// 152
 		{0, 0, 0},																	// 153

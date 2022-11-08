@@ -16,13 +16,19 @@ int main()
 	
 	// Настройка внешних прерываний
 	INITCFG_ConfigExtInterrupt();
-
+	
+	// Настройка CAN
+	INITCFG_ConfigCAN();
+	
 	// Настройка UART
 	INITCFG_ConfigUART();
 	
 	// Настройка системного счетчика
 	INITCFG_ConfigTimer7();
-
+	
+	// Настройка АЦП
+	INITCFG_ConfigADC();
+	
 	// Настройка сторожевого таймера
 	INITCFG_ConfigWatchDog();
 	

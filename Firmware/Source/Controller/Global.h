@@ -13,5 +13,16 @@
 // Временные параметры
 #define TIME_LED_BLINK							500		// Мигание светодиодом (в мс)
 #define TIME_FAULT_LED_BLINK					250		// Мигание светодиодом в состоянии Fault
+#define TIME_EXT_LAMP_ON_STATE					50		// Время загорания внешнего индикатора
+
+// Параметры оцифровки
+#define ADC_REF_VOLTAGE							3300.0f	// Опорное напряжение (в В)
+#define ADC_RESOLUTION							4095	// Разрешение АЦП
+#define ADC_I_CHANNEL							1		// Номер аналогового канала оцифровки тока
+
+//
+#define DELAY_COMMUTATION						10		// Время коммутации (мс)
+#define DELAY_KEI_CONFIG						500		// Время конфигурации Keithley (мс)
+#define DELAY_POWER_UP							1000	// Время необходимое для полного запуска Keithley 6485 (мс)
 
 #endif //  __GLOBAL_H
