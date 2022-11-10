@@ -31,7 +31,7 @@
 #define RANGE_MAX					30
 #define RANGE_DEF					30
 //
-#define MEASUREMENT_TIME_MIN		10
+#define MEASUREMENT_TIME_MIN		7.5
 #define MEASUREMENT_TIME_MAX		100
 #define MEASUREMENT_TIME_DEF		20
 //
