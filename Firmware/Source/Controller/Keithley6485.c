@@ -38,13 +38,14 @@ void KEI_Config()
 	KEI_Reset();
 	KEI_ZeroCorrect();
 	KEI_SetRange(RANGE_20mA);
-	KEI_SetADCRate(NPLC_DEF);
+	KEI_SetADCRate(NPLC_TIME_DEF);
 	KEI_TriggerLinkConfig();
 }
 //----------------------------------
 
 void KEI_Reset()
 {
+	KEI_SendData("*CLS", 4);
 	KEI_SendData("*RST", 4);
 }
 //----------------------------------
@@ -83,12 +84,14 @@ void KEI_SetRange(float Current)
 }
 //----------------------------------
 
-void KEI_SetADCRate(float Rate)
+void KEI_SetADCRate(float Time)
 {
-	float RoundedRate;
-	char Temp[13] = {};
-	char RateStr[3] = {};
+	float RoundedRate, Rate;
+	char Temp[14] = {0};
+	char RateStr[4] = {0};
 	
+	Rate = (Time - PLC_TIME_OFFSET) / PLC_TIME;
+
 	if(Rate < NPLC_MIN)
 		Rate = NPLC_MIN;
 	else if(Rate > NPLC_MAX)
@@ -110,9 +113,9 @@ void KEI_SetADCRate(float Rate)
 	
 	for(int i = 0; i < sizeof(RateStr); i++)
 		Temp[10 + i] = RateStr[i];
-	
-	KEI_SendData(&Temp[0], 13);
-	
+
+	KEI_SendData(&Temp[0], sizeof(Temp));
+
 	KEI_ConversionTimeout = (RoundedRate * PLC_TIME) * PLC_TIME_COEFFICIENT;
 }
 //----------------------------------

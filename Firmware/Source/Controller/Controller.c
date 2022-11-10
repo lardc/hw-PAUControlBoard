@@ -155,7 +155,7 @@ void CONTROL_LogicProcess()
 		{
 			case SS_ConfigKeithley:
 				KEI_SetRange(DataTable[REG_RANGE]);
-				KEI_SetADCRate(DataTable[REG_MEASUREMENT_TIME] / PLC_TIME);
+				KEI_SetADCRate(DataTable[REG_MEASUREMENT_TIME]);
 				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigMUX);
 				break;
 				

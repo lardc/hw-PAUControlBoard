@@ -20,8 +20,9 @@
 // Number of power line cycles (NPLC)
 #define NPLC_MIN						0.01
 #define NPLC_MAX						5
-#define NPLC_DEF						1
-#define PLC_TIME						67						// in ms
+#define NPLC_TIME_DEF					60
+#define PLC_TIME						60						// in ms
+#define PLC_TIME_OFFSET					7.5						// in ms
 #define PLC_TIME_COEFFICIENT			2
 
 //
@@ -37,7 +38,7 @@ bool KEI_ReadData(float* Data);
 void KEI_ReceiveData(USART_TypeDef* USARTx);
 void KEI_SwitchToSyncWaiting();
 bool KEI_Measure(float* Data);
-void KEI_SetADCRate(float Rate);
+void KEI_SetADCRate(float Time);
 void KEI_ResetRxConuter();
 
 #endif /* CONTROLLER_KEITHLEY6485_H_ */
