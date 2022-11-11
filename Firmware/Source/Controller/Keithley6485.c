@@ -45,7 +45,6 @@ void KEI_Config()
 
 void KEI_Reset()
 {
-	KEI_SendData("*CLS", 4);
 	KEI_SendData("*RST", 4);
 }
 //----------------------------------
