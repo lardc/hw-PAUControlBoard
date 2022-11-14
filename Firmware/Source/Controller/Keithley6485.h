@@ -8,14 +8,14 @@
 // Definitions
 //
 // Current ranges
-#define RANGE_2nA						2e-6					// in mA
-#define RANGE_20nA						20e-6					// in mA
-#define RANGE_200nA						200e-6					// in mA
-#define RANGE_2uA						2e-3					// in mA
-#define RANGE_20uA						20e-3					// in mA
-#define RANGE_200uA						200e-3					// in mA
-#define RANGE_2mA						2						// in mA
-#define RANGE_20mA						20						// in mA
+#define RANGE_2nA						2.1e-6					// in mA
+#define RANGE_20nA						21e-6					// in mA
+#define RANGE_200nA						210e-6					// in mA
+#define RANGE_2uA						2.1e-3					// in mA
+#define RANGE_20uA						21e-3					// in mA
+#define RANGE_200uA						210e-3					// in mA
+#define RANGE_2mA						2.1						// in mA
+#define RANGE_20mA						21						// in mA
 
 // Number of power line cycles (NPLC)
 #define NPLC_MIN						0.01
