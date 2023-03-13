@@ -12,40 +12,83 @@
 #include "Interrupts.h"
 #include "Controller.h"
 #include "DeviceObjectDictionary.h"
+#include "DataTable.h"
 
 // Definitions
 //
-#define KEI_MSR_PACKAGE_LENGTH			43
+#define KEI_MSR_PACKAGE_LENGTH			16
+#define TRIG_WITHOUT_BUFFER				1
 
 // Variables
 //
 Int16U KEI_RXcount = 0;
 Int8U KEI_Fifo[KEI_FIFO_LENGTH];
-Int16U KEI_ConversionTimeout = 0;
 
 // Functions prototypes
 //
-void KEI_Reset();
-void KEI_ZeroCorrect();
-void KEI_TriggerLinkConfig();
 void KEI_SendData(char* Data, Int16U Bytes);
 float KEI_ExtractData();
 
 // Functions
 //
-void KEI_Config()
+void KEI_SimpleConfig()
 {
 	KEI_Reset();
 	KEI_ZeroCorrect();
 	KEI_SetRange(RANGE_20mA);
-	KEI_SetADCRate(NPLC_TIME_DEF);
-	KEI_TriggerLinkConfig();
+	KEI_SetNPLC(DataTable[REG_KEI_NPLC_VALUE]);
+	KEI_TriggerLinkConfig(TRIG_WITHOUT_BUFFER);
+}
+//----------------------------------
+
+void KEI_BufferConfig(Int16U Size)
+{
+	static char Sizestr[4] = {0};
+	static char Comm1[10] = {"TRAC:POIN "};
+	static char Comm2[14] = {0};
+
+	sprintf(&Sizestr[0], "%f", (float)Size);
+	snprintf(Comm2, sizeof Comm2, "%s%s", Comm1, Sizestr);
+
+	KEI_SendData("SYST:ZCH OFF", 12);
+	KEI_SendData("SYST:AZER:STAT OFF", 18);
+	KEI_SendData("*CLS", 4);
+	KEI_SendData(&Comm2[0], sizeof(Comm2));
+	KEI_SendData("TRAC:CLE", 8);
+	KEI_SendData("TRAC:FEED:CONT NEXT", 19);
+	KEI_SendData("STAT:MEAS:ENAB 512", 18);
+	KEI_SendData("*SRE 1", 6);
+	KEI_SendData("*OPC?", 5);
+}
+//----------------------------------
+void KEI_EnableAverage(Int16U Size)
+{
+	static char Sizestr[4] = {0};
+	static char Comm1[10] = {"AVER:COUN "};
+	static char Comm2[14] = {0};
+
+	sprintf(&Sizestr[0], "%f", (float)Size);
+	snprintf(Comm2, sizeof Comm2, "%s%s", Comm1, Sizestr);
+
+	KEI_SendData(&Comm2[0], sizeof(Comm2));
+	KEI_SendData("AVER:TCON MOV", 13);
+	KEI_SendData("AVER:ADV:NTOL 50", 16);//2..100
+	KEI_SendData("AVER:ADV ON", 11);
+	KEI_SendData("AVER ON", 8);
+}
+//----------------------------------
+
+void KEI_EnableMedianFilter()
+{
+	KEI_SendData("MED:RANK 1", 10);//1..5
+	KEI_SendData("MED ON", 6);
 }
 //----------------------------------
 
 void KEI_Reset()
 {
 	KEI_SendData("*RST", 4);
+	KEI_SendData("*CLS", 4);
 }
 //----------------------------------
 
@@ -83,48 +126,38 @@ void KEI_SetRange(float Current)
 }
 //----------------------------------
 
-void KEI_SetADCRate(float Time)
+void KEI_SetNPLC(float Value)
 {
-	float RoundedRate, Rate;
-	char Temp[14] = {0};
-	char RateStr[4] = {0};
-	
-	Rate = (Time - PLC_TIME_OFFSET) / PLC_TIME;
+	static const char Comm1[10] = {"CURR:NPLC "};
+	static char PLCStr[4] = {0};
+	static char Comm2[14] = {0};
 
-	if(Rate < NPLC_MIN)
-		Rate = NPLC_MIN;
-	else if(Rate > NPLC_MAX)
-		Rate = NPLC_MAX;
+	if(Value < NPLC_MIN)
+		Value = NPLC_MIN;
+	else if(Value > NPLC_MAX)
+		Value = NPLC_MAX;
 	
-	RoundedRate = roundf(Rate * 100) / 100;
-	sprintf(&RateStr[0], "%f", RoundedRate);
-	
-	Temp[0] = 'C';
-	Temp[1] = 'U';
-	Temp[2] = 'R';
-	Temp[3] = 'R';
-	Temp[4] = ':';
-	Temp[5] = 'N';
-	Temp[6] = 'P';
-	Temp[7] = 'L';
-	Temp[8] = 'C';
-	Temp[9] = ' ';
-	
-	for(int i = 0; i < sizeof(RateStr); i++)
-		Temp[10 + i] = RateStr[i];
+	Value = roundf(Value * 100) / 100;
+	sprintf(&PLCStr[0], "%f", Value);
+	snprintf(Comm2, sizeof Comm2, "%s%s", Comm1, PLCStr);
 
-	KEI_SendData(&Temp[0], sizeof(Temp));
-
-	KEI_ConversionTimeout = (RoundedRate * PLC_TIME) * PLC_TIME_COEFFICIENT;
+	KEI_SendData(&Comm2[0], sizeof(Comm2));
 }
 //----------------------------------
 
-void KEI_TriggerLinkConfig()
+void KEI_TriggerLinkConfig(Int16U N)
 {
+	static char Nstr[4] = {0};
+	static char Comm1[10] = {"TRIG:COUN "};
+	static char Comm2[14] = {0};
+
+	sprintf(&Nstr[0], "%f", (float)N);
+	snprintf(Comm2, sizeof Comm2, "%s%s", Comm1, Nstr);
+
 	// Input trigger link
 	KEI_SendData("TRIG:DEL 0", 10);
 	KEI_SendData("TRIG:SOUR TLINk", 15);
-	KEI_SendData("TRIG:COUN 1", 11);
+	KEI_SendData(&Comm2[0], sizeof(Comm2));
 	KEI_SendData("TRIG:ASYN:ILIN 1", 16);
 	
 	// Output trigger link
@@ -136,18 +169,21 @@ void KEI_TriggerLinkConfig()
 
 void KEI_SwitchToSyncWaiting()
 {
-	FlagSyncFromLCTU = false;
-	FlagSyncFromIGTU = false;
-	FlagSyncToLCTU = false;
-	FlagSyncToIGTU = false;
-	
 	KEI_SendData("INIT", 4);
 }
 //----------------------------------
 
 bool KEI_ReadData(float* Data)
 {
-	KEI_SendData("SENS:DATA?", 10);
+	if(DataTable[REG_SAMPLES_NUMBER] > 1)
+	{
+		KEI_SendData("CALC3:FORM MEAN", 15);
+		KEI_SendData("CALC3:DATA?", 11);
+		//KEI_SendData("TRAC:DATA?", 10);
+	}
+	else
+		KEI_SendData("SENS:DATA?", 10);
+
 	DELAY_MS(KEI_RECEIVE_TIME);
 	
 	if(KEI_RXcount >= KEI_MSR_PACKAGE_LENGTH)
@@ -165,24 +201,35 @@ bool KEI_ReadData(float* Data)
 
 bool KEI_Measure(float* Data)
 {
-	Int64U TimeCounter = 0;
+	static Int64U TimeCounter = 0;
 	
-	KEI_SwitchToSyncWaiting();
-	LL_GenerateSyncToKeithley();
-	
-	TimeCounter = CONTROL_TimeCounter + KEI_ConversionTimeout;
-	
-	while(CONTROL_TimeCounter < TimeCounter)
+	if(!TimeCounter)
 	{
+		INT_ResetFlags();
+		KEI_SwitchToSyncWaiting();
+		LL_GenerateSyncToKeithley();
+
+		TimeCounter = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
 	}
-	
-	if(FlagSyncToLCTU || FlagSyncToIGTU)
-		return KEI_ReadData(Data);
 	else
 	{
-		CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
-		return 0;
+		if(CONTROL_TimeCounter < TimeCounter)
+		{
+			if(FlagSyncToLCTU || FlagSyncToIGTU)
+			{
+				TimeCounter = 0;
+				return KEI_ReadData(Data);
+			}
+		}
+		else
+		{
+			TimeCounter = 0;
+			CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
+			return 0;
+		}
 	}
+
+	return 0;
 }
 //----------------------------------
 
@@ -210,9 +257,10 @@ float KEI_ExtractData()
 	char Mantissa[KEI_MSR_PACKAGE_LENGTH] = {};
 	char Exponenta[KEI_MSR_PACKAGE_LENGTH] = {};
 	Int16U ExpStartAddress = 0;
+	Int16U MantissaStartAddress = 0;
 	float M, E;
 	
-	KEI_ResetRxConuter();
+	KEI_ResetRxCounter();
 	
 	for(int i = 0; i < KEI_MSR_PACKAGE_LENGTH; i++)
 	{
@@ -232,14 +280,26 @@ float KEI_ExtractData()
 		}
 	}
 	
-	M = atoff(&Mantissa[0]);
+	if(Mantissa[0] != '+' || Mantissa[0] != '-')
+	{
+		for(int i = 0; i < KEI_MSR_PACKAGE_LENGTH; i++)
+		{
+			if(Mantissa[i] == '+' || Mantissa[i] == '-')
+			{
+				MantissaStartAddress = i;
+				break;
+			}
+		}
+	}
+
+	M = atoff(&Mantissa[MantissaStartAddress]);
 	E = atoff(&Exponenta[0]);
 	
 	return (M * powf(10, E) * 1000);
 }
 //----------------------------------
 
-void KEI_ResetRxConuter()
+void KEI_ResetRxCounter()
 {
 	KEI_RXcount = 0;
 }

@@ -46,6 +46,8 @@ void CONTROL_ResetToDefaultState();
 void CONTROL_LogicProcess();
 void CONTROL_SaveTestResult();
 void CONTROL_ResetOutputRegisters();
+void CONTROL_ConfigKeithley_LCTU();
+void CONTROL_ConfigKeithley_IGTU();
 
 // Functions
 //
@@ -77,7 +79,7 @@ void CONTROL_ResetToDefaultState()
 {
 	CONTROL_ResetOutputRegisters();
 	CONTROL_HardwareDefaultState();
-	KEI_ResetRxConuter();
+	KEI_ResetRxCounter();
 }
 //------------------------------------------
 
@@ -154,14 +156,22 @@ void CONTROL_LogicProcess()
 		switch(CONTROL_SubState)
 		{
 			case SS_ConfigKeithley:
-				KEI_SetRange(DataTable[REG_RANGE]);
-				KEI_SetADCRate(DataTable[REG_MEASUREMENT_TIME]);
+				(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? CONTROL_ConfigKeithley_LCTU() : CONTROL_ConfigKeithley_IGTU();
+				SyncCounter = DataTable[REG_SAMPLES_NUMBER];
 				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigMUX);
 				break;
 				
 			case SS_ConfigMUX:
-				(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchMuxToLCTU() : LL_SwitchMuxToIGTU();
-				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigDivider);
+				if(DataTable[REG_CHANNEL] == CHANNEL_LCTU)
+				{
+					LL_SwitchMuxToLCTU();
+					CONTROL_SetDeviceState(DS_InProcess, SS_ConfigDivider);
+				}
+				else
+				{
+					 LL_SwitchMuxToIGTU();
+					 CONTROL_SetDeviceState(DS_InProcess, SS_WaitCommutation);
+				}
 				break;
 				
 			case SS_ConfigDivider:
@@ -186,6 +196,7 @@ void CONTROL_LogicProcess()
 				
 				if(!CONTROL_SoftwareStartMeasure)
 				{
+					INT_ResetFlags();
 					KEI_SwitchToSyncWaiting();
 					CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
 					CONTROL_SetDeviceState(DS_ConfigReady, SS_None);
@@ -197,7 +208,7 @@ void CONTROL_LogicProcess()
 			case SS_Measurement:
 				if(!CONTROL_SoftwareStartMeasure)
 				{
-					if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+					if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter && LastSyncFromIGTU)
 						CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
 				}
 				else
@@ -220,12 +231,38 @@ void CONTROL_LogicProcess()
 		}
 	}
 	
-	if(CONTROL_State == DS_ConfigReady && CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+	if((CONTROL_State == DS_ConfigReady || CONTROL_SubState == SS_Measurement) && CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
 	{
+		KEI_SimpleConfig();
 		CONTROL_HardwareDefaultState();
 		DataTable[REG_WARNING] = WARNING_SYNC_WAIT_TIMEOUT;
 		CONTROL_SetDeviceState(DS_Ready, SS_None);
 	}
+}
+//-----------------------------------------------
+
+void CONTROL_ConfigKeithley_LCTU()
+{
+	KEI_SimpleConfig();
+	KEI_SetRange(DataTable[REG_RANGE]);
+	KEI_SetNPLC(DataTable[REG_KEI_NPLC_VALUE]);
+}
+//-----------------------------------------------
+
+void CONTROL_ConfigKeithley_IGTU()
+{
+	if(DataTable[REG_SAMPLES_NUMBER] > 1)
+	{
+		KEI_Reset();
+		KEI_TriggerLinkConfig(DataTable[REG_SAMPLES_NUMBER]);
+		KEI_SetNPLC(DataTable[REG_KEI_NPLC_VALUE]);
+		KEI_SetRange(DataTable[REG_RANGE]);
+		KEI_EnableAverage(DataTable[REG_SAMPLES_NUMBER]);
+		KEI_EnableMedianFilter();
+		KEI_BufferConfig(DataTable[REG_SAMPLES_NUMBER]);
+	}
+	else
+		CONTROL_ConfigKeithley_LCTU();
 }
 //-----------------------------------------------
 
@@ -301,7 +338,7 @@ void CONTROL_SwitchToFault(Int16U Reason)
 {
 	CONTROL_ResetOutputRegisters();
 	CONTROL_HardwareDefaultState();
-	KEI_ResetRxConuter();
+	KEI_ResetRxCounter();
 	
 	CONTROL_SetDeviceState(DS_Fault, SS_None);
 	DataTable[REG_FAULT_REASON] = Reason;

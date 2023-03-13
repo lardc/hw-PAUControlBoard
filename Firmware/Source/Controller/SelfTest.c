@@ -37,7 +37,7 @@ void SELFTEST_Process()
 			break;
 			
 		case ST_Prepare:
-			KEI_Config();
+			KEI_SimpleConfig();
 			LL_SwitchSyncToLCTU();
 			LL_SwitchMuxToDefault();
 			LL_SetStateSelfTestCurrent(true);
