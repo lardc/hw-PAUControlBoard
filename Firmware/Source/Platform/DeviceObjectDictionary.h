@@ -41,13 +41,13 @@
 #define REG_SFTST_I_ALOWED_ERR			6	// Допустимая ошибка измерения тока самотестирования (%)
 #define REG_I_DIV_FACTOR				7	// Коэффициент деления делителя тока
 #define REG_SYNC_WAIT_TIMEOUT			8	// Таймаут нахождения блока в состоянии DS_ConfigReady (мс)
-#define REG_KEI_MEASURE_TIMEOUT			9	// Таймаут измерения тока Keithley 6485 (мс)
-#define REG_LAMP_CTRL					10	// Регистр запрета работы внешнего индикатора (0 - запрещено, 1 - разрешено)
+#define REG_LAMP_CTRL					9	// Регистр запрета работы внешнего индикатора (0 - запрещено, 1 - разрешено)
+#define REG_KEI_NPLC_VALUE				10	// Значение NPLC Keithley 6485
 
 // Несохраняемы регистры чтения-записи
 #define REG_CHANNEL						128	// 0 - канал не выбран, 1 - LCTU, 2 - IGTU
 #define REG_RANGE						129	// Выбор дипазона измерения тока (mA)
-#define REG_MEASUREMENT_TIME			130	// Время преобразования (мс)
+#define REG_SAMPLES_NUMBER				130	// Количество точек измерений
 //
 #define REG_DBG							150	// Отладочный регистр
 

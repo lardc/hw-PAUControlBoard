@@ -5,6 +5,7 @@
 #include "stdinc.h"
 #include "DataTable.h"
 #include "Global.h"
+#include "Keithley6485.h"
 
 //Definitions
 //
@@ -31,17 +32,11 @@
 #define RANGE_MAX					30
 #define RANGE_DEF					30
 //
-#define MEASUREMENT_TIME_MIN		7.5
-#define MEASUREMENT_TIME_MAX		100
-#define MEASUREMENT_TIME_DEF		20
+#define NPLC_DEF					1
 //
 #define SYNC_WAIT_TIMEOUT_MIN		500
 #define SYNC_WAIT_TIMEOUT_MAX		5000
 #define SYNC_WAIT_TIMEOUT_DEF		1000
-//
-#define KEI_MEASURE_TIMEOUT_MIN		100
-#define KEI_MEASURE_TIMEOUT_MAX		1000
-#define KEI_MEASURE_TIMEOUT_DEF		100
 //
 #define COEF_K_MIN					-INT16S_MAX
 #define COEF_K_MAX					INT16S_MAX
@@ -66,6 +61,9 @@
 #define NO							0
 #define YES							1
 //
+#define SAMPLES_NUMBER_MIN			1
+#define SAMPLES_NUMBER_MAX			2500
+#define SAMPLES_NUMBER_DEF			1
 
 // Types
 typedef struct __TableItemConstraint
