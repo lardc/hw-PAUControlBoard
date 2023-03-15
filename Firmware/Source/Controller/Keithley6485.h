@@ -23,9 +23,9 @@
 
 //
 #define KEI_FIFO_LENGTH					100
-#define KEI_RECEIVE_TIME				25						// in ms
+#define KEI_RECEIVE_TIME				50						// in ms
 #define KEI_CURRENT_MAX					20						// in mA
-#define KEI_MEASURE_TIMEOUT				1000					// in ms
+#define KEI_MEASURE_TIMEOUT				5000						// in ms
 
 // Functions prototypes
 //
@@ -43,5 +43,6 @@ void KEI_EnableMedianFilter();
 void KEI_TriggerLinkConfig(Int16U N);
 void KEI_Reset();
 void KEI_ZeroCorrect();
+void KEI_AbortMeasure();
 
 #endif /* CONTROLLER_KEITHLEY6485_H_ */

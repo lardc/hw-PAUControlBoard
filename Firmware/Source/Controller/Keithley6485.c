@@ -18,6 +18,7 @@
 //
 #define KEI_MSR_PACKAGE_LENGTH			16
 #define TRIG_WITHOUT_BUFFER				1
+#define KEI_AVERAGE_COUNT_MAX			100
 
 // Variables
 //
@@ -67,12 +68,15 @@ void KEI_EnableAverage(Int16U Size)
 	static char Comm1[10] = {"AVER:COUN "};
 	static char Comm2[14] = {0};
 
+	if(Size > KEI_AVERAGE_COUNT_MAX)
+		Size = KEI_AVERAGE_COUNT_MAX;
+
 	sprintf(&Sizestr[0], "%f", (float)Size);
 	snprintf(Comm2, sizeof Comm2, "%s%s", Comm1, Sizestr);
 
 	KEI_SendData(&Comm2[0], sizeof(Comm2));
 	KEI_SendData("AVER:TCON MOV", 13);
-	KEI_SendData("AVER:ADV:NTOL 50", 16);//2..100
+	KEI_SendData("AVER:ADV:NTOL 0", 16);//2..100
 	KEI_SendData("AVER:ADV ON", 11);
 	KEI_SendData("AVER ON", 8);
 }
@@ -80,15 +84,22 @@ void KEI_EnableAverage(Int16U Size)
 
 void KEI_EnableMedianFilter()
 {
-	KEI_SendData("MED:RANK 1", 10);//1..5
+	KEI_SendData("MED:RANK 5", 10);//1..5
 	KEI_SendData("MED ON", 6);
+}
+//----------------------------------
+
+void KEI_AbortMeasure()
+{
+	KEI_SendData("ABOR", 4);
 }
 //----------------------------------
 
 void KEI_Reset()
 {
-	KEI_SendData("*RST", 4);
+	KEI_AbortMeasure();
 	KEI_SendData("*CLS", 4);
+	KEI_SendData("*RST", 4);
 }
 //----------------------------------
 
@@ -155,6 +166,7 @@ void KEI_TriggerLinkConfig(Int16U N)
 	snprintf(Comm2, sizeof Comm2, "%s%s", Comm1, Nstr);
 
 	// Input trigger link
+	KEI_SendData("TRIG:CLE", 8);
 	KEI_SendData("TRIG:DEL 0", 10);
 	KEI_SendData("TRIG:SOUR TLINk", 15);
 	KEI_SendData(&Comm2[0], sizeof(Comm2));
@@ -179,7 +191,6 @@ bool KEI_ReadData(float* Data)
 	{
 		KEI_SendData("CALC3:FORM MEAN", 15);
 		KEI_SendData("CALC3:DATA?", 11);
-		//KEI_SendData("TRAC:DATA?", 10);
 	}
 	else
 		KEI_SendData("SENS:DATA?", 10);
@@ -201,34 +212,19 @@ bool KEI_ReadData(float* Data)
 
 bool KEI_Measure(float* Data)
 {
-	static Int64U TimeCounter = 0;
+	Int64U TimeCounter = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
 	
-	if(!TimeCounter)
-	{
-		INT_ResetFlags();
-		KEI_SwitchToSyncWaiting();
-		LL_GenerateSyncToKeithley();
+	INT_ResetFlags();
+	KEI_SwitchToSyncWaiting();
+	LL_GenerateSyncToKeithley();
 
-		TimeCounter = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
-	}
-	else
+	while(CONTROL_TimeCounter < TimeCounter)
 	{
-		if(CONTROL_TimeCounter < TimeCounter)
-		{
-			if(FlagSyncToLCTU || FlagSyncToIGTU)
-			{
-				TimeCounter = 0;
-				return KEI_ReadData(Data);
-			}
-		}
-		else
-		{
-			TimeCounter = 0;
-			CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
-			return 0;
-		}
+		if(FlagSyncToLCTU || FlagSyncToIGTU)
+			return KEI_ReadData(Data);
 	}
 
+	CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
 	return 0;
 }
 //----------------------------------
