@@ -208,7 +208,7 @@ void CONTROL_LogicProcess()
 			case SS_Measurement:
 				if(!CONTROL_SoftwareStartMeasure)
 				{
-					if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter && LastSyncFromIGTU)
+					if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
 						CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
 				}
 				else

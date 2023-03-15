@@ -1,9 +1,6 @@
 // Header
 //
 #include "SelfTest.h"
-#include "DeviceObjectDictionary.h"
-#include "Global.h"
-#include "DataTable.h"
 
 // Includes
 //
@@ -11,6 +8,10 @@
 #include "LowLevel.h"
 #include "Keithley6485.h"
 #include "math.h"
+#include "DeviceObjectDictionary.h"
+#include "Global.h"
+#include "DataTable.h"
+#include "Constraints.h"
 
 // Variables
 //
@@ -42,6 +43,8 @@ void SELFTEST_Process()
 			LL_SwitchMuxToDefault();
 			LL_SetStateSelfTestCurrent(true);
 			
+			DataTable[REG_SAMPLES_NUMBER] = SAMPLES_NUMBER_MIN;
+			DataTable[REG_CHANNEL] = CHANNEL_LCTU;
 			DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
 			DelayCounter = CONTROL_TimeCounter + DELAY_KEI_CONFIG;
 			

@@ -7,11 +7,10 @@
 
 // Variables
 //
-extern bool FlagSyncFromLCTU;
-extern bool FlagSyncFromIGTU;
-extern bool FlagSyncToLCTU;
-extern bool FlagSyncToIGTU;
-extern bool LastSyncFromIGTU;
+extern volatile bool FlagSyncFromLCTU;
+extern volatile bool FlagSyncFromIGTU;
+extern volatile bool FlagSyncToLCTU;
+extern volatile bool FlagSyncToIGTU;
 //
 extern Int16S SyncCounter;
 
