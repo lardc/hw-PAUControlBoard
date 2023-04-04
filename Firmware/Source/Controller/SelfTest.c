@@ -30,13 +30,6 @@ void SELFTEST_Process()
 	
 	switch(CONTROL_SubState)
 	{
-		case ST_PowerUpWaiting:
-			if(!DelayCounter)
-				DelayCounter = CONTROL_TimeCounter + DELAY_POWER_UP;
-			else if(CONTROL_TimeCounter >= DelayCounter)
-				CONTROL_SetDeviceSubState(ST_Prepare);
-			break;
-			
 		case ST_Prepare:
 			KEI_SimpleConfig();
 			LL_SwitchSyncToLCTU();
@@ -76,7 +69,7 @@ void SELFTEST_Process()
 			if(KEI_Measure(&KEI_Data))
 			{
 				DelayCounter = 0;
-				
+
 				if(KEI_Data >= DataTable[REG_SFTST_MUX_OFF_THRE])
 					CONTROL_SetDeviceSubState(ST_IGTU_ChannelCheck);
 				else
