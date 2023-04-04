@@ -17,7 +17,6 @@
 // Definitions
 //
 #define KEI_MSR_PACKAGE_LENGTH			16
-#define TRIG_WITHOUT_BUFFER				1
 #define KEI_AVERAGE_COUNT_MAX			100
 
 // Variables
@@ -182,6 +181,7 @@ void KEI_TriggerLinkConfig(Int16U N)
 void KEI_SwitchToSyncWaiting()
 {
 	KEI_SendData("INIT", 4);
+	DELAY_MS(KEI_SYNC_INIT_DELAY);
 }
 //----------------------------------
 
@@ -220,8 +220,13 @@ bool KEI_Measure(float* Data)
 
 	while(CONTROL_TimeCounter < TimeCounter)
 	{
-		if(FlagSyncToLCTU || FlagSyncToIGTU)
+		if(SyncFlags.ToLCTU || SyncFlags.ToIGTU)
+		{
+			DELAY_MS(KEI_READ_DELAY);
 			return KEI_ReadData(Data);
+		}
+
+		IWDG_Refresh();
 	}
 
 	CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
