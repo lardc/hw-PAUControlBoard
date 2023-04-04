@@ -76,3 +76,8 @@ void DBACT_SendDataToKeithley()
 }
 //-----------------------
 
+void DBACT_KeithleyPower()
+{
+	LL_KeithleyPowered(DataTable[REG_DBG]);
+}
+//-----------------------

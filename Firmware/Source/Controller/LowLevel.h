@@ -25,5 +25,6 @@ bool LL_CheckSyncFromIGTU();
 bool LL_CheckSyncToLCTU();
 bool LL_CheckSyncToIGTU();
 void LL_ToggleExtLED();
+void LL_KeithleyPowered(bool State);
 
 #endif //__LOWLEVEL_H

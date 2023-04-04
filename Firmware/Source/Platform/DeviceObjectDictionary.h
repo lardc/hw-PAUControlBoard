@@ -2,6 +2,8 @@
 #define __DEV_OBJ_DIC_H
 
 // Команды
+#define ACT_ENABLE_POWER				1	// Включение блока
+#define ACT_DISABLE_POWER				2	// Отключение блока
 #define ACT_CLR_FAULT					3	// Очистка всех fault
 #define ACT_CLR_WARNING					4	// Очистка всех warning
 //
@@ -15,6 +17,7 @@
 #define ACT_DBG_CURRENT_DIVIDER			17	// 1 - включить делитель тока, 0 - выключить делитель тока
 #define ACT_DBG_GENERATE_SYNC_KEI		18	// Формирование импульса синхронизации для Keithley 6485
 #define ACT_DBG_SEND_DATA_TO_KEI		19	// Отправить данные в Keithley 6485
+#define ACT_DBG_KEI_POWER				20	// Проверка питания Keithley
 //
 #define ACT_CONFIG						100	// Сконфигурировать блок
 #define ACT_START_MEASURE				101	// Запуск измерения
