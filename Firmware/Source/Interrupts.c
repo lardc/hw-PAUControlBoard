@@ -7,21 +7,16 @@
 
 // Variables
 //
-volatile bool FlagSyncFromLCTU = false;
-volatile bool FlagSyncFromIGTU = false;
-volatile bool FlagSyncToLCTU = false;
-volatile bool FlagSyncToIGTU = false;
+struct SyncFlagsStruct SyncFlags;
 //
 Int16S SyncCounter = 0;
 
 // Functions prototypes
 //
-bool INT_CheckSyncFromLCTU();
-bool INT_CheckSyncFromIGTU();
-bool INT_CheckSyncToLCTU();
-bool INT_CheckSyncToIGTU();
-void INT_LCTUsyncProcess(bool FromLCTU, bool ToLCTU);
-void INT_IGTUsyncProcess(bool FromIGTU, bool ToIGTU);
+void INT_SyncProcess();
+void INT_LCTUsyncProcess();
+void INT_IGTUsyncProcess();
+void INT_ClearInterrupts();
 
 // Functions
 //
@@ -76,92 +71,86 @@ void TIM7_IRQHandler()
 
 void EXTI4_IRQHandler()
 {
-	if(INT_CheckSyncFromIGTU())
-		INT_IGTUsyncProcess(true, false);
+	INT_SyncProcess();
 }
 //-----------------------------------------
 
 void EXTI9_5_IRQHandler()
 {
-	if(INT_CheckSyncFromLCTU())
-		INT_LCTUsyncProcess(true, false);
-
-	if(INT_CheckSyncToLCTU())
-		INT_LCTUsyncProcess(false, true);
-
-	if(INT_CheckSyncToIGTU())
-		INT_IGTUsyncProcess(false, true);
+	INT_SyncProcess();
 }
 //-----------------------------------------
 
-void INT_LCTUsyncProcess(bool FromLCTU, bool ToLCTU)
+void INT_SyncProcess()
 {
-	if(FromLCTU)
-	{
-		if(CONTROL_State == DS_ConfigReady)
-			CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
+	SyncFlags.FromIGTU |= LL_CheckSyncFromIGTU();
+	SyncFlags.FromLCTU |= LL_CheckSyncFromLCTU();
+	SyncFlags.ToIGTU |= LL_CheckSyncToIGTU();
+	SyncFlags.ToLCTU |= LL_CheckSyncToLCTU();
 
-		CONTROL_TimeoutCounter = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
-	}
-	
-	if(ToLCTU && CONTROL_SubState == SS_Measurement)
-		CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
+	INT_LCTUsyncProcess(SyncFlags);
+	INT_IGTUsyncProcess(SyncFlags);
+
+	INT_ClearInterrupts();
 }
 //-----------------------------------------
 
-void INT_IGTUsyncProcess(bool FromIGTU, bool ToIGTU)
+void INT_ClearInterrupts()
 {
-	if(FromIGTU)
-	{
-		if(CONTROL_State == DS_ConfigReady)
-			CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
-
-		CONTROL_TimeoutCounter = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
-	}
-
-	if(ToIGTU && CONTROL_SubState == SS_Measurement)
-	{
-		if(--SyncCounter <= 0)
-			CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
-	}
-
-	INT_ResetFlags();
-}
-//-----------------------------------------
-
-bool INT_CheckSyncFromLCTU()
-{
-	FlagSyncFromLCTU |= LL_CheckSyncFromLCTU();
-	return ((DataTable[REG_CHANNEL] == CHANNEL_LCTU) && FlagSyncFromLCTU);
-}
-//-----------------------------------------
-
-bool INT_CheckSyncFromIGTU()
-{
-	FlagSyncFromIGTU |= LL_CheckSyncFromIGTU();
-	return ((DataTable[REG_CHANNEL] == CHANNEL_IGTU) && FlagSyncFromIGTU);
-}
-//-----------------------------------------
-
-bool INT_CheckSyncToLCTU()
-{
-	FlagSyncToLCTU |= LL_CheckSyncToLCTU();
-	return ((DataTable[REG_CHANNEL] == CHANNEL_LCTU) && FlagSyncToLCTU);
-}
-//-----------------------------------------
-
-bool INT_CheckSyncToIGTU()
-{
-	FlagSyncToIGTU |= LL_CheckSyncToIGTU();
-	return ((DataTable[REG_CHANNEL] == CHANNEL_IGTU) && FlagSyncToIGTU);
+	EXTI_FlagReset(EXTI_4);
+	EXTI_FlagReset(EXTI_5);
+	EXTI_FlagReset(EXTI_7);
+	EXTI_FlagReset(EXTI_9);
 }
 //-----------------------------------------
 
 void INT_ResetFlags()
 {
-	FlagSyncFromLCTU = false;
-	FlagSyncFromIGTU = false;
-	FlagSyncToLCTU = false;
-	FlagSyncToIGTU = false;
+	SyncFlags.FromIGTU = false;
+	SyncFlags.FromLCTU = false;
+	SyncFlags.ToIGTU = false;
+	SyncFlags.ToLCTU = false;
+}
+//-----------------------------------------
+
+void INT_LCTUsyncProcess()
+{
+	if(DataTable[REG_CHANNEL] == CHANNEL_LCTU)
+	{
+		if(SyncFlags.FromLCTU)
+		{
+			if(CONTROL_State == DS_ConfigReady)
+				CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
+
+			CONTROL_TimeoutCounter = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
+		}
+
+		if(SyncFlags.ToLCTU && CONTROL_SubState == SS_Measurement)
+			CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
+	}
+}
+//-----------------------------------------
+
+void INT_IGTUsyncProcess()
+{
+	if(DataTable[REG_CHANNEL] == CHANNEL_IGTU)
+	{
+		if(SyncFlags.FromIGTU)
+		{
+			if(CONTROL_State == DS_ConfigReady)
+				CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
+
+			CONTROL_TimeoutCounter = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
+		}
+
+		if(SyncFlags.ToIGTU && CONTROL_SubState == SS_Measurement)
+		{
+			if(--SyncCounter <= 0)
+				CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
+		}
+
+		SyncFlags.FromIGTU = false;
+		SyncFlags.FromLCTU = false;
+	}
 }
 //-----------------------------------------

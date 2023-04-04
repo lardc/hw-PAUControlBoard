@@ -18,7 +18,7 @@
 
 // Определения для выходных портов
 //
-GPIO_PortPinSettingMacro GPIO_LED = {GPIOA, Pin_5}; //
+GPIO_PortPinSettingMacro GPIO_LED = {GPIOA, Pin_6}; //
 GPIO_PortPinSettingMacro GPIO_LED_EXT = {GPIOB, Pin_0}; //
 GPIO_PortPinSettingMacro GPIO_STST_CURRENT = {GPIOA, Pin_4}; //
 GPIO_PortPinSettingMacro GPIO_STST_IGTU_CH = {GPIOA, Pin_8}; //
@@ -29,6 +29,7 @@ GPIO_PortPinSettingMacro GPIO_LCTU_SEL = {GPIOB, Pin_8}; //
 GPIO_PortPinSettingMacro GPIO_LCTU_SI = {GPIOB, Pin_5}; //
 GPIO_PortPinSettingMacro GPIO_LCTU_MUX = {GPIOC, Pin_14}; //
 GPIO_PortPinSettingMacro GPIO_IDIV2 = {GPIOC, Pin_15}; //
+GPIO_PortPinSettingMacro GPIO_KEI_PWR = {GPIOA, Pin_5}; //
 
 // Определения для входных портов
 //

@@ -5,12 +5,17 @@
 //
 #include "stdinc.h"
 
+struct SyncFlagsStruct
+{
+	bool FromIGTU;
+	bool FromLCTU;
+	bool ToIGTU;
+	bool ToLCTU;
+};
+
 // Variables
 //
-extern volatile bool FlagSyncFromLCTU;
-extern volatile bool FlagSyncFromIGTU;
-extern volatile bool FlagSyncToLCTU;
-extern volatile bool FlagSyncToIGTU;
+extern struct SyncFlagsStruct SyncFlags;
 //
 extern Int16S SyncCounter;
 
