@@ -150,7 +150,7 @@ void INT_IGTUsyncProcess()
 		}
 
 		SyncFlags.FromIGTU = false;
-		SyncFlags.FromLCTU = false;
+		SyncFlags.ToIGTU = false;
 	}
 }
 //-----------------------------------------

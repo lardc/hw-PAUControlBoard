@@ -187,6 +187,8 @@ void KEI_SwitchToSyncWaiting()
 
 bool KEI_ReadData(float* Data)
 {
+	DELAY_MS(KEI_READ_DELAY);
+
 	if(DataTable[REG_SAMPLES_NUMBER] > 1)
 	{
 		KEI_SendData("CALC3:FORM MEAN", 15);
@@ -221,10 +223,7 @@ bool KEI_Measure(float* Data)
 	while(CONTROL_TimeCounter < TimeCounter)
 	{
 		if(SyncFlags.ToLCTU || SyncFlags.ToIGTU)
-		{
-			DELAY_MS(KEI_READ_DELAY);
 			return KEI_ReadData(Data);
-		}
 
 		IWDG_Refresh();
 	}
