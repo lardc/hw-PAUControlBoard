@@ -99,6 +99,7 @@ void KEI_Reset()
 	KEI_AbortMeasure();
 	KEI_SendData("*CLS", 4);
 	KEI_SendData("*RST", 4);
+	KEI_SendData("TRAC:FEED:CONT NEV", 18);
 }
 //----------------------------------
 
@@ -199,7 +200,7 @@ bool KEI_ReadData(float* Data)
 
 	DELAY_MS(KEI_RECEIVE_TIME);
 	
-	if(KEI_RXcount >= KEI_MSR_PACKAGE_LENGTH)
+	if(KEI_RXcount)
 	{
 		*Data = KEI_ExtractData();
 		return true;
@@ -254,15 +255,15 @@ void KEI_ReceiveData(USART_TypeDef* USARTx)
 
 float KEI_ExtractData()
 {
-	char Mantissa[KEI_MSR_PACKAGE_LENGTH] = {};
-	char Exponenta[KEI_MSR_PACKAGE_LENGTH] = {};
+	char Mantissa[KEI_FIFO_LENGTH] = {};
+	char Exponenta[KEI_FIFO_LENGTH] = {};
 	Int16U ExpStartAddress = 0;
 	Int16U MantissaStartAddress = 0;
 	float M, E;
 	
 	KEI_ResetRxCounter();
 	
-	for(int i = 0; i < KEI_MSR_PACKAGE_LENGTH; i++)
+	for(int i = 0; i < KEI_FIFO_LENGTH; i++)
 	{
 		if(!ExpStartAddress)
 		{
@@ -282,7 +283,7 @@ float KEI_ExtractData()
 	
 	if(Mantissa[0] != '+' || Mantissa[0] != '-')
 	{
-		for(int i = 0; i < KEI_MSR_PACKAGE_LENGTH; i++)
+		for(int i = 0; i < KEI_FIFO_LENGTH; i++)
 		{
 			if(Mantissa[i] == '+' || Mantissa[i] == '-')
 			{
