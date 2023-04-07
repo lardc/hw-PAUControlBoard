@@ -17,5 +17,6 @@ void DBACT_SwitchSyncToLCTU();
 void DBACT_SetStateCurrentDivider();
 void DBACT_GenerateSyncToKeithley();
 void DBACT_SendDataToKeithley();
+void DBACT_KeithleyPower();
 
 #endif //__DEBUGACTIONS_H

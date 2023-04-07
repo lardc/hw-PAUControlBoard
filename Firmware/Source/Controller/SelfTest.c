@@ -1,9 +1,6 @@
 // Header
 //
 #include "SelfTest.h"
-#include "DeviceObjectDictionary.h"
-#include "Global.h"
-#include "DataTable.h"
 
 // Includes
 //
@@ -11,6 +8,10 @@
 #include "LowLevel.h"
 #include "Keithley6485.h"
 #include "math.h"
+#include "DeviceObjectDictionary.h"
+#include "Global.h"
+#include "DataTable.h"
+#include "Constraints.h"
 
 // Variables
 //
@@ -29,19 +30,14 @@ void SELFTEST_Process()
 	
 	switch(CONTROL_SubState)
 	{
-		case ST_PowerUpWaiting:
-			if(!DelayCounter)
-				DelayCounter = CONTROL_TimeCounter + DELAY_POWER_UP;
-			else if(CONTROL_TimeCounter >= DelayCounter)
-				CONTROL_SetDeviceSubState(ST_Prepare);
-			break;
-			
 		case ST_Prepare:
-			KEI_Config();
+			KEI_SimpleConfig();
 			LL_SwitchSyncToLCTU();
 			LL_SwitchMuxToDefault();
 			LL_SetStateSelfTestCurrent(true);
 			
+			DataTable[REG_SAMPLES_NUMBER] = SAMPLES_NUMBER_MIN;
+			DataTable[REG_CHANNEL] = CHANNEL_LCTU;
 			DataTable[REG_SELF_TEST_OP_RESULT] = OPRESULT_NONE;
 			DelayCounter = CONTROL_TimeCounter + DELAY_KEI_CONFIG;
 			
@@ -73,7 +69,7 @@ void SELFTEST_Process()
 			if(KEI_Measure(&KEI_Data))
 			{
 				DelayCounter = 0;
-				
+
 				if(KEI_Data >= DataTable[REG_SFTST_MUX_OFF_THRE])
 					CONTROL_SetDeviceSubState(ST_IGTU_ChannelCheck);
 				else

@@ -52,6 +52,10 @@ bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
 			DBACT_SendDataToKeithley();
 			break;
 			
+		case ACT_DBG_KEI_POWER:
+			DBACT_KeithleyPower();
+			break;
+
 		default:
 			return false;
 	}

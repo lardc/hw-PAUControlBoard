@@ -2,6 +2,8 @@
 #define __DEV_OBJ_DIC_H
 
 // Команды
+#define ACT_ENABLE_POWER				1	// Включение блока
+#define ACT_DISABLE_POWER				2	// Отключение блока
 #define ACT_CLR_FAULT					3	// Очистка всех fault
 #define ACT_CLR_WARNING					4	// Очистка всех warning
 //
@@ -15,6 +17,7 @@
 #define ACT_DBG_CURRENT_DIVIDER			17	// 1 - включить делитель тока, 0 - выключить делитель тока
 #define ACT_DBG_GENERATE_SYNC_KEI		18	// Формирование импульса синхронизации для Keithley 6485
 #define ACT_DBG_SEND_DATA_TO_KEI		19	// Отправить данные в Keithley 6485
+#define ACT_DBG_KEI_POWER				20	// Проверка питания Keithley
 //
 #define ACT_CONFIG						100	// Сконфигурировать блок
 #define ACT_START_MEASURE				101	// Запуск измерения
@@ -41,13 +44,13 @@
 #define REG_SFTST_I_ALOWED_ERR			6	// Допустимая ошибка измерения тока самотестирования (%)
 #define REG_I_DIV_FACTOR				7	// Коэффициент деления делителя тока
 #define REG_SYNC_WAIT_TIMEOUT			8	// Таймаут нахождения блока в состоянии DS_ConfigReady (мс)
-#define REG_KEI_MEASURE_TIMEOUT			9	// Таймаут измерения тока Keithley 6485 (мс)
-#define REG_LAMP_CTRL					10	// Регистр запрета работы внешнего индикатора (0 - запрещено, 1 - разрешено)
+#define REG_LAMP_CTRL					9	// Регистр запрета работы внешнего индикатора (0 - запрещено, 1 - разрешено)
+#define REG_KEI_NPLC_VALUE				10	// Значение NPLC Keithley 6485
 
 // Несохраняемы регистры чтения-записи
 #define REG_CHANNEL						128	// 0 - канал не выбран, 1 - LCTU, 2 - IGTU
 #define REG_RANGE						129	// Выбор дипазона измерения тока (mA)
-#define REG_MEASUREMENT_TIME			130	// Время преобразования (мс)
+#define REG_SAMPLES_NUMBER				130	// Количество точек измерений
 //
 #define REG_DBG							150	// Отладочный регистр
 

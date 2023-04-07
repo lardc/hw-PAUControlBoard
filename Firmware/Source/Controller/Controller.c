@@ -31,8 +31,8 @@ Int16U MEMBUF_Values_Write[VALUES_x_SIZE];
 Int16U MEMBUF_ValuesWrite_Counter = 0;
 //
 volatile Int64U CONTROL_TimeCounter = 0;
-Int64U CONTROL_CommutationDelayCounter = 0;
-Int64U CONTROL_TimeoutCounter = 0;
+Int64U Timeout = 0;
+Int64U Delay = 0;
 //
 float CurrentDividerRatio = 1;
 bool CONTROL_SoftwareStartMeasure = false;
@@ -46,6 +46,8 @@ void CONTROL_ResetToDefaultState();
 void CONTROL_LogicProcess();
 void CONTROL_SaveTestResult();
 void CONTROL_ResetOutputRegisters();
+void CONTROL_ConfigKeithley_LCTU();
+void CONTROL_ConfigKeithley_IGTU();
 
 // Functions
 //
@@ -68,8 +70,8 @@ void CONTROL_Init()
 	// Сброс значений
 	DEVPROFILE_ResetControlSection();
 	CONTROL_ResetToDefaultState();
-	
-	CONTROL_SetDeviceState(DS_InProcess, ST_PowerUpWaiting);
+
+	CONTROL_SetDeviceState(DS_InProcess, SS_InitDelay);
 }
 //------------------------------------------
 
@@ -77,7 +79,9 @@ void CONTROL_ResetToDefaultState()
 {
 	CONTROL_ResetOutputRegisters();
 	CONTROL_HardwareDefaultState();
-	KEI_ResetRxConuter();
+	KEI_ResetRxCounter();
+
+	CONTROL_SetDeviceState(DS_None, SS_None);
 }
 //------------------------------------------
 
@@ -96,10 +100,20 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 	
 	switch(ActionID)
 	{
+		case ACT_ENABLE_POWER:
+			break;
+
+		case ACT_DISABLE_POWER:
+			break;
+
 		case ACT_CLR_FAULT:
 			if(CONTROL_State == DS_Fault)
 			{
-				CONTROL_SetDeviceState(DS_InProcess, ST_PowerUpWaiting);
+				LL_KeithleyPowered(false);
+				DELAY_MS(500);
+				LL_KeithleyPowered(true);
+
+				CONTROL_SetDeviceState(DS_InProcess, SS_InitDelay);
 				DataTable[REG_FAULT_REASON] = DF_NONE;
 			}
 			break;
@@ -153,10 +167,25 @@ void CONTROL_LogicProcess()
 	{
 		switch(CONTROL_SubState)
 		{
+			case SS_InitDelay:
+				Delay = CONTROL_TimeCounter + DELAY_POWER_UP;
+				CONTROL_SetDeviceState(DS_InProcess, SS_PowerOn);
+				break;
+
+			case SS_PowerOn:
+				if(CONTROL_TimeCounter >= Delay)
+					CONTROL_SetDeviceState(DS_Ready, SS_None);
+				break;
+
 			case SS_ConfigKeithley:
-				KEI_SetRange(DataTable[REG_RANGE]);
-				KEI_SetADCRate(DataTable[REG_MEASUREMENT_TIME] / PLC_TIME);
-				CONTROL_SetDeviceState(DS_InProcess, SS_ConfigMUX);
+				(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? CONTROL_ConfigKeithley_LCTU() : CONTROL_ConfigKeithley_IGTU();
+				Delay = CONTROL_TimeCounter + DELAY_KEI_CONFIG;
+				CONTROL_SetDeviceState(DS_InProcess, ST_WaitingKeithley);
+				break;
+
+			case ST_WaitingKeithley:
+				if(CONTROL_TimeCounter >= Delay)
+					CONTROL_SetDeviceState(DS_InProcess, SS_ConfigMUX);
 				break;
 				
 			case SS_ConfigMUX:
@@ -172,22 +201,24 @@ void CONTROL_LogicProcess()
 					CurrentDividerRatio = DataTable[REG_I_DIV_FACTOR];
 					LL_SetStateCurrentDivider(true);
 				}
-				CONTROL_CommutationDelayCounter = CONTROL_TimeCounter + DELAY_COMMUTATION;
+
+				Delay = CONTROL_TimeCounter + DELAY_COMMUTATION;
 				CONTROL_SetDeviceState(DS_InProcess, SS_WaitCommutation);
 				break;
 				
 			case SS_WaitCommutation:
-				if(CONTROL_TimeCounter >= CONTROL_CommutationDelayCounter)
+				if(CONTROL_TimeCounter >= Delay)
 					CONTROL_SetDeviceState(DS_InProcess, SS_ConfigSync);
 				break;
 				
 			case SS_ConfigSync:
 				(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchSyncToLCTU() : LL_SwitchSyncToIGTU();
+				Timeout = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
 				
 				if(!CONTROL_SoftwareStartMeasure)
 				{
+					INT_ResetFlags();
 					KEI_SwitchToSyncWaiting();
-					CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
 					CONTROL_SetDeviceState(DS_ConfigReady, SS_None);
 				}
 				else
@@ -197,7 +228,7 @@ void CONTROL_LogicProcess()
 			case SS_Measurement:
 				if(!CONTROL_SoftwareStartMeasure)
 				{
-					if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+					if(CONTROL_TimeCounter >= Timeout)
 						CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
 				}
 				else
@@ -220,11 +251,41 @@ void CONTROL_LogicProcess()
 		}
 	}
 	
-	if(CONTROL_State == DS_ConfigReady && CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+	if((CONTROL_State == DS_ConfigReady || CONTROL_SubState == SS_Measurement) && CONTROL_TimeCounter >= Timeout)
 	{
+		KEI_SimpleConfig();
 		CONTROL_HardwareDefaultState();
 		DataTable[REG_WARNING] = WARNING_SYNC_WAIT_TIMEOUT;
 		CONTROL_SetDeviceState(DS_Ready, SS_None);
+	}
+}
+//-----------------------------------------------
+
+void CONTROL_ConfigKeithley_LCTU()
+{
+	KEI_SimpleConfig();
+	KEI_SetRange(DataTable[REG_RANGE]);
+}
+//-----------------------------------------------
+
+void CONTROL_ConfigKeithley_IGTU()
+{
+	if(DataTable[REG_SAMPLES_NUMBER] > SAMPLES_NUMBER_MIN)
+	{
+		KEI_Reset();
+		KEI_TriggerLinkConfig(DataTable[REG_SAMPLES_NUMBER]);
+		KEI_SetNPLC(DataTable[REG_KEI_NPLC_VALUE]);
+		KEI_SetRange(DataTable[REG_RANGE]);
+		KEI_EnableAverage(DataTable[REG_SAMPLES_NUMBER]);
+		KEI_EnableMedianFilter();
+		KEI_BufferConfig(DataTable[REG_SAMPLES_NUMBER]);
+		SyncCounter = DataTable[REG_SAMPLES_NUMBER];
+	}
+	else
+	{
+		KEI_SimpleConfig();
+		KEI_SetRange(DataTable[REG_RANGE]);
+		SyncCounter = SAMPLES_NUMBER_MIN;
 	}
 }
 //-----------------------------------------------
@@ -254,7 +315,7 @@ void CONTROL_HandleExternalLamp()
 		}
 		else
 		{
-			if(CONTROL_State == DS_ConfigReady || CONTROL_State == DS_InProcess)
+			if(CONTROL_State == DS_ConfigReady || CONTROL_SubState == SS_Measurement)
 			{
 				LL_SetStateExtLED(true);
 				ExternalLampCounter = CONTROL_TimeCounter + TIME_EXT_LAMP_ON_STATE;
@@ -301,7 +362,7 @@ void CONTROL_SwitchToFault(Int16U Reason)
 {
 	CONTROL_ResetOutputRegisters();
 	CONTROL_HardwareDefaultState();
-	KEI_ResetRxConuter();
+	KEI_ResetRxCounter();
 	
 	CONTROL_SetDeviceState(DS_Fault, SS_None);
 	DataTable[REG_FAULT_REASON] = Reason;

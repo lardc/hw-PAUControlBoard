@@ -26,6 +26,7 @@ void INITCFG_ConfigIO()
 	GPIO_InitPushPullOutput(GPIO_IGTU_MUX);
 	GPIO_InitPushPullOutput(GPIO_LCTU_MUX);
 	GPIO_InitPushPullOutput(GPIO_IDIV2);
+	GPIO_InitPushPullOutput(GPIO_KEI_PWR);
 	//
 	GPIO_InitOpenDrainOutput(GPIO_IGTU_SEL, NoPull);
 	GPIO_InitOpenDrainOutput(GPIO_LCTU_SEL, NoPull);
