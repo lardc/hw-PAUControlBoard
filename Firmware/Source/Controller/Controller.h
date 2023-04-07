@@ -21,6 +21,7 @@ typedef enum __DeviceState
 typedef enum __DeviceSubState
 {
 	SS_None = 0,
+	SS_InitDelay,
 	SS_PowerOn,
 	SS_ConfigMUX,
 	SS_ConfigKeithley,
@@ -31,7 +32,7 @@ typedef enum __DeviceSubState
 	SS_Measurement,
 	SS_SaveResults,
 	//
-	ST_Prepare = 10,
+	ST_Prepare = 20,
 	ST_WaitingConfig,
 	ST_CurrentCheck,
 	ST_Keithley,

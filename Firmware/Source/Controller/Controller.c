@@ -72,7 +72,7 @@ void CONTROL_Init()
 	DEVPROFILE_ResetControlSection();
 	CONTROL_ResetToDefaultState();
 
-	CONTROL_SetDeviceState(DS_InProcess, SS_PowerOn);
+	CONTROL_SetDeviceState(DS_InProcess, SS_InitDelay);
 }
 //------------------------------------------
 
@@ -114,7 +114,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 				DELAY_MS(500);
 				LL_KeithleyPowered(true);
 
-				CONTROL_SetDeviceState(DS_InProcess, SS_PowerOn);
+				CONTROL_SetDeviceState(DS_InProcess, SS_InitDelay);
 				DataTable[REG_FAULT_REASON] = DF_NONE;
 			}
 			break;
@@ -168,14 +168,14 @@ void CONTROL_LogicProcess()
 	{
 		switch(CONTROL_SubState)
 		{
+			case SS_InitDelay:
+				CONTROL_PowerUpCounter = CONTROL_TimeCounter + DELAY_POWER_UP;
+				CONTROL_SetDeviceState(DS_InProcess, SS_PowerOn);
+				break;
+
 			case SS_PowerOn:
-				if(!CONTROL_PowerUpCounter)
-					CONTROL_PowerUpCounter = CONTROL_TimeCounter + DELAY_POWER_UP;
-				else if(CONTROL_TimeCounter >= CONTROL_PowerUpCounter)
-				{
-					CONTROL_PowerUpCounter = 0;
+				if(CONTROL_TimeCounter >= CONTROL_PowerUpCounter)
 					CONTROL_SetDeviceState(DS_Ready, SS_None);
-				}
 				break;
 
 			case SS_ConfigKeithley:
