@@ -48,10 +48,11 @@ extern volatile Int64U CONTROL_TimeCounter;
 extern volatile DeviceState CONTROL_State;
 extern volatile DeviceSubState CONTROL_SubState;
 extern Int64U CONTROL_LEDTimeout;
-extern Int64U CONTROL_TimeoutCounter;
+extern Int64U Timeout;
 //
 extern Int16U MEMBUF_Values_Write[VALUES_x_SIZE];
 extern Int16U MEMBUF_ValuesWrite_Counter;
+extern bool CONTROL_SoftwareStartMeasure;
 
 // Functions
 //

@@ -31,9 +31,8 @@ Int16U MEMBUF_Values_Write[VALUES_x_SIZE];
 Int16U MEMBUF_ValuesWrite_Counter = 0;
 //
 volatile Int64U CONTROL_TimeCounter = 0;
-Int64U CONTROL_CommutationDelayCounter = 0;
-Int64U CONTROL_TimeoutCounter = 0;
-Int64U CONTROL_PowerUpCounter = 0;
+Int64U Timeout = 0;
+Int64U Delay = 0;
 //
 float CurrentDividerRatio = 1;
 bool CONTROL_SoftwareStartMeasure = false;
@@ -169,23 +168,23 @@ void CONTROL_LogicProcess()
 		switch(CONTROL_SubState)
 		{
 			case SS_InitDelay:
-				CONTROL_PowerUpCounter = CONTROL_TimeCounter + DELAY_POWER_UP;
+				Delay = CONTROL_TimeCounter + DELAY_POWER_UP;
 				CONTROL_SetDeviceState(DS_InProcess, SS_PowerOn);
 				break;
 
 			case SS_PowerOn:
-				if(CONTROL_TimeCounter >= CONTROL_PowerUpCounter)
+				if(CONTROL_TimeCounter >= Delay)
 					CONTROL_SetDeviceState(DS_Ready, SS_None);
 				break;
 
 			case SS_ConfigKeithley:
 				(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? CONTROL_ConfigKeithley_LCTU() : CONTROL_ConfigKeithley_IGTU();
-				CONTROL_TimeoutCounter = CONTROL_TimeCounter + DELAY_KEI_CONFIG;
+				Delay = CONTROL_TimeCounter + DELAY_KEI_CONFIG;
 				CONTROL_SetDeviceState(DS_InProcess, ST_WaitingKeithley);
 				break;
 
 			case ST_WaitingKeithley:
-				if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+				if(CONTROL_TimeCounter >= Delay)
 					CONTROL_SetDeviceState(DS_InProcess, SS_ConfigMUX);
 				break;
 				
@@ -203,18 +202,18 @@ void CONTROL_LogicProcess()
 					LL_SetStateCurrentDivider(true);
 				}
 
-				CONTROL_CommutationDelayCounter = CONTROL_TimeCounter + DELAY_COMMUTATION;
+				Delay = CONTROL_TimeCounter + DELAY_COMMUTATION;
 				CONTROL_SetDeviceState(DS_InProcess, SS_WaitCommutation);
 				break;
 				
 			case SS_WaitCommutation:
-				if(CONTROL_TimeCounter >= CONTROL_CommutationDelayCounter)
+				if(CONTROL_TimeCounter >= Delay)
 					CONTROL_SetDeviceState(DS_InProcess, SS_ConfigSync);
 				break;
 				
 			case SS_ConfigSync:
 				(DataTable[REG_CHANNEL] == CHANNEL_LCTU) ? LL_SwitchSyncToLCTU() : LL_SwitchSyncToIGTU();
-				CONTROL_TimeoutCounter = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
+				Timeout = CONTROL_TimeCounter + DataTable[REG_SYNC_WAIT_TIMEOUT];
 				
 				if(!CONTROL_SoftwareStartMeasure)
 				{
@@ -229,7 +228,7 @@ void CONTROL_LogicProcess()
 			case SS_Measurement:
 				if(!CONTROL_SoftwareStartMeasure)
 				{
-					if(CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+					if(CONTROL_TimeCounter >= Timeout)
 						CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
 				}
 				else
@@ -252,7 +251,7 @@ void CONTROL_LogicProcess()
 		}
 	}
 	
-	if((CONTROL_State == DS_ConfigReady || CONTROL_SubState == SS_Measurement) && CONTROL_TimeCounter >= CONTROL_TimeoutCounter)
+	if((CONTROL_State == DS_ConfigReady || CONTROL_SubState == SS_Measurement) && CONTROL_TimeCounter >= Timeout)
 	{
 		KEI_SimpleConfig();
 		CONTROL_HardwareDefaultState();
