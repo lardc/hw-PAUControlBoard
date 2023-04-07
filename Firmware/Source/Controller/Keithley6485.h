@@ -28,7 +28,7 @@
 #define KEI_RECEIVE_TIME				50						// in ms
 #define KEI_READ_DELAY					10						// in ms
 #define KEI_CURRENT_MAX					20						// in mA
-#define KEI_MEASURE_TIMEOUT				5000					// in ms
+#define KEI_MEASURE_TIMEOUT				300						// in ms
 #define KEI_SYNC_INIT_DELAY				50						// in ms
 
 // Functions prototypes
