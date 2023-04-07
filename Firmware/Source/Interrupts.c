@@ -115,14 +115,14 @@ void INT_ResetFlags()
 
 void INT_LCTUsyncProcess()
 {
-	if(DataTable[REG_CHANNEL] == CHANNEL_LCTU)
+	if(DataTable[REG_CHANNEL] == CHANNEL_LCTU && !CONTROL_SoftwareStartMeasure)
 	{
 		if(SyncFlags.FromLCTU)
 		{
 			if(CONTROL_State == DS_ConfigReady)
 				CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
 
-			CONTROL_TimeoutCounter = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
+			Timeout = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
 		}
 
 		if(SyncFlags.ToLCTU && CONTROL_SubState == SS_Measurement)
@@ -133,14 +133,14 @@ void INT_LCTUsyncProcess()
 
 void INT_IGTUsyncProcess()
 {
-	if(DataTable[REG_CHANNEL] == CHANNEL_IGTU)
+	if(DataTable[REG_CHANNEL] == CHANNEL_IGTU && !CONTROL_SoftwareStartMeasure)
 	{
 		if(SyncFlags.FromIGTU)
 		{
 			if(CONTROL_State == DS_ConfigReady)
 				CONTROL_SetDeviceState(DS_InProcess, SS_Measurement);
 
-			CONTROL_TimeoutCounter = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
+			Timeout = CONTROL_TimeCounter + KEI_MEASURE_TIMEOUT;
 		}
 
 		if(SyncFlags.ToIGTU && CONTROL_SubState == SS_Measurement)
