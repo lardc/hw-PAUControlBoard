@@ -109,12 +109,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 		case ACT_CLR_FAULT:
 			if(CONTROL_State == DS_Fault)
 			{
-				LL_KeithleyPowered(false);
-				DELAY_MS(500);
-				LL_KeithleyPowered(true);
-
-				CONTROL_SetDeviceState(DS_InProcess, SS_InitDelay);
-				DataTable[REG_FAULT_REASON] = DF_NONE;
+				Delay = CONTROL_TimeCounter + DELAY_KEY_PWR_RESET;
+				CONTROL_SetDeviceState(DS_InProcess, SS_FaultClear);
 			}
 			break;
 			
@@ -163,7 +159,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 
 void CONTROL_LogicProcess()
 {
-	if(CONTROL_State == DS_InProcess)
+	if(CONTROL_State == DS_InProcess || CONTROL_State == DS_Fault)
 	{
 		switch(CONTROL_SubState)
 		{
@@ -245,6 +241,17 @@ void CONTROL_LogicProcess()
 				CONTROL_HardwareDefaultState();
 				break;
 				
+			case SS_FaultClear:
+				LL_KeithleyPowered(false);
+
+				if(CONTROL_TimeCounter >= Delay)
+				{
+					LL_KeithleyPowered(true);
+					CONTROL_SetDeviceState(DS_InProcess, SS_InitDelay);
+					DataTable[REG_FAULT_REASON] = DF_NONE;
+				}
+				break;
+
 			default:
 				SELFTEST_Process();
 				break;
