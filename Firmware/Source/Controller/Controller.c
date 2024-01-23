@@ -170,7 +170,7 @@ void CONTROL_LogicProcess()
 
 			case SS_PowerOn:
 				if(CONTROL_TimeCounter >= Delay)
-					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_SetDeviceState(DS_InProcess, ST_Prepare);
 				break;
 
 			case SS_ConfigKeithley:
@@ -322,7 +322,7 @@ void CONTROL_HandleExternalLamp()
 		}
 		else
 		{
-			if(CONTROL_State == DS_ConfigReady || CONTROL_SubState == SS_Measurement)
+			if(CONTROL_State == DS_ConfigReady || CONTROL_SubState == SS_Measurement || CONTROL_SubState >= ST_Prepare)
 			{
 				LL_SetStateExtLED(true);
 				ExternalLampCounter = CONTROL_TimeCounter + TIME_EXT_LAMP_ON_STATE;

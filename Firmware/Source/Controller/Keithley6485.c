@@ -202,7 +202,9 @@ bool KEI_ReadData(float* Data)
 	
 	if(KEI_RXcount)
 	{
-		*Data = KEI_ExtractData();
+		float KeiData = KEI_ExtractData();
+
+		*Data = (KeiData < 0) ? 0 : KeiData;
 		return true;
 	}
 	else
