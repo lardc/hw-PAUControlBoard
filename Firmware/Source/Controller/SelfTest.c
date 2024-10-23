@@ -162,9 +162,9 @@ bool SELFTEST_TestCurrentCheck()
 	MeasuredTestCurrent = (float)ADC_Measure(ADC1, ADC_I_CHANNEL) * ADC_REF_VOLTAGE / ADC_RESOLUTION
 			/ DataTable[REG_SFTST_R_SHUNT];
 	
-	Error = fabs((MeasuredTestCurrent - CalculatedTestCurrent) / CalculatedTestCurrent * 100);
+	Error = fabsf((MeasuredTestCurrent - CalculatedTestCurrent) / CalculatedTestCurrent * 100);
 	
-	return (Error >= DataTable[REG_SFTST_I_ALOWED_ERR]) ? false : true;
+	return Error < DataTable[REG_SFTST_I_ALOWED_ERR];
 }
 //-------------------------
 
