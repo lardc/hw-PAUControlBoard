@@ -262,7 +262,6 @@ void CONTROL_LogicProcess()
 	{
 		KEI_SimpleConfig();
 		CONTROL_HardwareDefaultState();
-		DataTable[REG_WARNING] = WARNING_SYNC_WAIT_TIMEOUT;
 		CONTROL_SetDeviceState(DS_Ready, SS_None);
 	}
 }
