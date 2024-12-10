@@ -23,6 +23,7 @@
 //
 Int16U KEI_RXcount = 0;
 Int8U KEI_Fifo[KEI_FIFO_LENGTH];
+float KEI_MaxCurrent = 0;
 
 // Functions prototypes
 //
@@ -119,21 +120,21 @@ void KEI_ZeroCorrect()
 void KEI_SetRange(float Current)
 {
 	if(Current <= RANGE_2nA)
-		KEI_SendData("CURR:RANG 2E-9"); 	// 2nA
+		{KEI_MaxCurrent = RANGE_2nA; KEI_SendData("CURR:RANG 2E-9");} 	// 2nA
 	else if(Current <= RANGE_20nA)
-		KEI_SendData("CURR:RANG 20E-9"); 	// 20nA
+		{KEI_MaxCurrent = RANGE_20nA; KEI_SendData("CURR:RANG 20E-9");} 	// 20nA
 	else if(Current <= RANGE_200nA)
-		KEI_SendData("CURR:RANG 200E-9"); 	// 200nA
+		{KEI_MaxCurrent = RANGE_200nA; KEI_SendData("CURR:RANG 200E-9");} 	// 200nA
 	else if(Current <= RANGE_2uA)
-		KEI_SendData("CURR:RANG 2E-6"); 	// 2uA
+		{KEI_MaxCurrent = RANGE_2uA; KEI_SendData("CURR:RANG 2E-6");} 	// 2uA
 	else if(Current <= RANGE_20uA)
-		KEI_SendData("CURR:RANG 20E-6"); 	// 20uA
+		{KEI_MaxCurrent = RANGE_20uA; KEI_SendData("CURR:RANG 20E-6");} 	// 20uA
 	else if(Current <= RANGE_200uA)
-		KEI_SendData("CURR:RANG 200E-6");	// 200uA
+		{KEI_MaxCurrent = RANGE_200uA; KEI_SendData("CURR:RANG 200E-6");}	// 200uA
 	else if(Current <= RANGE_2mA)
-		KEI_SendData("CURR:RANG 2E-3"); 	// 2mA
+		{KEI_MaxCurrent = RANGE_2mA; KEI_SendData("CURR:RANG 2E-3");} 	// 2mA
 	else
-		KEI_SendData("CURR:RANG 20E-3"); 	// 20mA
+		{KEI_MaxCurrent = RANGE_20mA; KEI_SendData("CURR:RANG 20E-3");} 	// 20mA
 }
 //----------------------------------
 
@@ -204,7 +205,7 @@ bool KEI_ReadData(float* Data)
 	{
 		float KeiData = KEI_ExtractData();
 
-		*Data = (KeiData < 0) ? 0 : KeiData;
+		*Data = (isinf(KeiData) == 1 || isinf(KeiData) == -1) ? KEI_MaxCurrent : KeiData;
 		return true;
 	}
 	else
