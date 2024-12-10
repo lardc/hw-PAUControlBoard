@@ -109,12 +109,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 		case ACT_CLR_FAULT:
 			if(CONTROL_State == DS_Fault)
 			{
-				LL_KeithleyPowered(false);
-				DELAY_MS(500);
-				LL_KeithleyPowered(true);
-
-				CONTROL_SetDeviceState(DS_InProcess, SS_InitDelay);
-				DataTable[REG_FAULT_REASON] = DF_NONE;
+				Delay = CONTROL_TimeCounter + DELAY_KEY_PWR_RESET;
+				CONTROL_SetDeviceState(DS_InProcess, SS_FaultClear);
 			}
 			break;
 			
@@ -163,7 +159,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 
 void CONTROL_LogicProcess()
 {
-	if(CONTROL_State == DS_InProcess)
+	if(CONTROL_State == DS_InProcess || CONTROL_State == DS_Fault)
 	{
 		switch(CONTROL_SubState)
 		{
@@ -174,7 +170,7 @@ void CONTROL_LogicProcess()
 
 			case SS_PowerOn:
 				if(CONTROL_TimeCounter >= Delay)
-					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_SetDeviceState(DS_InProcess, ST_Prepare);
 				break;
 
 			case SS_ConfigKeithley:
@@ -245,6 +241,17 @@ void CONTROL_LogicProcess()
 				CONTROL_HardwareDefaultState();
 				break;
 				
+			case SS_FaultClear:
+				LL_KeithleyPowered(false);
+
+				if(CONTROL_TimeCounter >= Delay)
+				{
+					LL_KeithleyPowered(true);
+					CONTROL_SetDeviceState(DS_InProcess, SS_InitDelay);
+					DataTable[REG_FAULT_REASON] = DF_NONE;
+				}
+				break;
+
 			default:
 				SELFTEST_Process();
 				break;
@@ -255,7 +262,6 @@ void CONTROL_LogicProcess()
 	{
 		KEI_SimpleConfig();
 		CONTROL_HardwareDefaultState();
-		DataTable[REG_WARNING] = WARNING_SYNC_WAIT_TIMEOUT;
 		CONTROL_SetDeviceState(DS_Ready, SS_None);
 	}
 }
@@ -315,7 +321,7 @@ void CONTROL_HandleExternalLamp()
 		}
 		else
 		{
-			if(CONTROL_State == DS_ConfigReady || CONTROL_SubState == SS_Measurement)
+			if(CONTROL_State == DS_ConfigReady || CONTROL_SubState == SS_Measurement || CONTROL_SubState >= ST_Prepare)
 			{
 				LL_SetStateExtLED(true);
 				ExternalLampCounter = CONTROL_TimeCounter + TIME_EXT_LAMP_ON_STATE;

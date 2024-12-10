@@ -93,7 +93,6 @@
 
 //  Warning
 #define WARNING_NONE					0
-#define WARNING_SYNC_WAIT_TIMEOUT		1
 
 //  User Errors
 #define ERR_NONE						0
