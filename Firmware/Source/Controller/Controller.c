@@ -17,6 +17,7 @@
 
 // Definitions
 //
+#define KEI_SYNC_FLUSH_GAP_US			20
 
 // Types
 //
@@ -48,6 +49,7 @@ void CONTROL_SaveTestResult();
 void CONTROL_ResetOutputRegisters();
 void CONTROL_ConfigKeithley_LCTU();
 void CONTROL_ConfigKeithley_IGTU();
+void CONTROL_HandleIgtuSyncTimeout();
 
 // Functions
 //
@@ -225,7 +227,12 @@ void CONTROL_LogicProcess()
 				if(!CONTROL_SoftwareStartMeasure)
 				{
 					if(CONTROL_TimeCounter >= Timeout)
-						CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
+					{
+						if(DataTable[REG_CHANNEL] == CHANNEL_IGTU)
+							CONTROL_HandleIgtuSyncTimeout();
+						else
+							CONTROL_SwitchToFault(DF_KEI_SYNC_TIMEOUT);
+					}
 				}
 				else
 				{
@@ -361,6 +368,23 @@ void CONTROL_SaveTestResult()
 		
 		CONTROL_SetDeviceState(DS_Ready, SS_None);
 	}
+}
+//-----------------------------------------------
+
+void CONTROL_HandleIgtuSyncTimeout()
+{
+	while(SyncCounter > 0)
+	{
+		LL_GenerateSyncToKeithley();
+		SyncCounter--;
+		DELAY_US(KEI_SYNC_FLUSH_GAP_US);
+	}
+
+	CONTROL_HardwareDefaultState();
+	KEI_ResetRxCounter();
+	CONTROL_SetDeviceState(DS_Ready, SS_None);
+	DataTable[REG_OP_RESULT] = OPRESULT_FAIL;
+	DataTable[REG_PROBLEM] = PROBLEM_KEI_SYNC_TIMEOUT;
 }
 //-----------------------------------------------
 

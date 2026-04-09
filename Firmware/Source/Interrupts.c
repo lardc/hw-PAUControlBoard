@@ -145,8 +145,13 @@ void INT_IGTUsyncProcess()
 
 		if(SyncFlags.ToIGTU && CONTROL_SubState == SS_Measurement)
 		{
-			if(--SyncCounter <= 0)
-				CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
+			if(SyncCounter > 0)
+			{
+				SyncCounter--;
+
+				if(SyncCounter <= 0)
+					CONTROL_SetDeviceState(DS_InProcess, SS_SaveResults);
+			}
 		}
 
 		SyncFlags.FromIGTU = false;

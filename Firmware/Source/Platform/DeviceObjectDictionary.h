@@ -90,6 +90,7 @@
 
 // Problem
 #define PROBLEM_NONE					0
+#define PROBLEM_KEI_SYNC_TIMEOUT		1
 
 //  Warning
 #define WARNING_NONE					0
