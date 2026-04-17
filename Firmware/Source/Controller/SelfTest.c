@@ -69,6 +69,7 @@ void SELFTEST_Process()
 			if(KEI_Measure(&KEI_Data))
 			{
 				DelayCounter = 0;
+				DataTable[REG_DIAG_LAST_KEI_ST_VALUE] = KEI_Data;
 
 				if(KEI_Data >= DataTable[REG_SFTST_MUX_OFF_THRE])
 					CONTROL_SetDeviceSubState(ST_IGTU_ChannelCheck);
@@ -93,6 +94,7 @@ void SELFTEST_Process()
 				if(KEI_Measure(&KEI_Data))
 				{
 					DelayCounter = 0;
+					DataTable[REG_DIAG_LAST_KEI_ST_VALUE] = KEI_Data;
 					
 					if(KEI_Data >= DataTable[REG_SFTST_MUX_IGTU_THRE])
 						CONTROL_SwitchToFault(DF_ST_MUX_IGTU);
@@ -114,6 +116,7 @@ void SELFTEST_Process()
 				if(KEI_Measure(&KEI_Data))
 				{
 					DelayCounter = 0;
+					DataTable[REG_DIAG_LAST_KEI_ST_VALUE] = KEI_Data;
 					
 					if(KEI_Data >= DataTable[REG_SFTST_MUX_LCTU_THRE])
 						CONTROL_SwitchToFault(DF_ST_MUX_LCTU);
@@ -134,6 +137,7 @@ void SELFTEST_Process()
 				if(KEI_Measure(&KEI_Data))
 				{
 					DelayCounter = 0;
+					DataTable[REG_DIAG_LAST_KEI_ST_VALUE] = KEI_Data;
 					
 					if(KEI_Data >= DataTable[REG_SFTST_MUX_LCTU_DIV_THRE])
 						CONTROL_SwitchToFault(DF_ST_DIVIDER);

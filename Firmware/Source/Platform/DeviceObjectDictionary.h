@@ -65,6 +65,8 @@
 #define REG_SUB_STATE					199	// Регистр вспомогательного состояния
 //
 #define REG_RESULT_CURRENT				200	// Измеренное значение тока
+//
+#define REG_DIAG_LAST_KEI_ST_VALUE		210	// Последнее считанное значение KEI в процессе самодиагностики
 // -----------------------------
 #define REG_FWINFO_SLAVE_NID			256	// Device CAN slave node ID
 #define REG_FWINFO_MASTER_NID			257	// Device CAN master node ID (if presented)
